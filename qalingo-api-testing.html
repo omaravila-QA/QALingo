@@ -1,0 +1,1309 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>QALingo — API Testing for QA</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --teal:#1aab98;--teal-d:#0f7a6e;--green:#7ec94a;--amber:#f0c040;
+  --red:#e05555;--purple:#9b6ff7;--blue:#74b4f8;--orange:#ff8c42;--pink:#f472b6;
+  --dark:#07090d;--d2:#0b0f16;--d3:#10161f;
+  --card:#0f1520;--border:#1a2535;--bhi:#253545;
+  --text:#dde8f0;--muted:#7a9ab5;--white:#eef3f8;
+}
+html{scroll-behavior:smooth}
+body{background:var(--dark);color:var(--text);font-family:'DM Sans',sans-serif;font-size:16px;line-height:1.7;overflow-x:hidden;
+  cursor:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32' viewBox='0 0 32 32'%3E%3Ccircle cx='13' cy='13' r='9' fill='none' stroke='%231aab98' stroke-width='2.5'/%3E%3Ccircle cx='13' cy='13' r='5' fill='rgba(26%2C171%2C152%2C0.15)'/%3E%3Cline x1='20' y1='20' x2='28' y2='28' stroke='%231aab98' stroke-width='2.5' stroke-linecap='round'/%3E%3C/svg%3E") 13 13,auto}
+
+.progress-bar{position:fixed;top:0;left:0;height:3px;background:linear-gradient(90deg,var(--pink),var(--purple));z-index:200;transition:width .3s ease;width:0%}
+.back-home{position:fixed;top:16px;left:16px;z-index:150;display:flex;align-items:center;gap:7px;background:var(--card);border:1px solid var(--border);border-radius:10px;padding:8px 14px;font-family:'Syne',sans-serif;font-weight:700;font-size:12px;color:var(--muted);text-decoration:none;transition:all .15s}
+.back-home:hover{border-color:var(--teal);color:var(--teal);transform:translateX(-2px)}
+
+/* HEADER */
+.page-header{padding:80px 24px 48px;max-width:960px;margin:0 auto;text-align:center}
+.ph-badge{display:inline-flex;align-items:center;gap:8px;background:rgba(244,114,182,.1);border:1px solid rgba(244,114,182,.25);border-radius:20px;padding:6px 16px;font-family:'DM Mono',monospace;font-size:11px;color:var(--pink);letter-spacing:.5px;margin-bottom:20px}
+.ph-title{font-family:'Syne',sans-serif;font-size:clamp(32px,6vw,52px);font-weight:800;letter-spacing:-2px;line-height:1.05;color:var(--white);margin-bottom:14px}
+.ph-title span{background:linear-gradient(135deg,var(--pink),var(--purple));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.ph-sub{font-size:17px;color:var(--muted);max-width:580px;margin:0 auto 28px;line-height:1.7}
+.ph-stats{display:flex;align-items:center;justify-content:center;gap:24px;flex-wrap:wrap}
+.ph-stat{font-family:'DM Mono',monospace;font-size:12px;color:var(--muted);display:flex;align-items:center;gap:6px}
+.ph-stat strong{color:var(--pink)}
+
+/* TOC */
+.toc{max-width:960px;margin:0 auto 56px;padding:0 24px}
+.toc-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px}
+.toc-item{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px 16px;text-decoration:none;transition:all .2s;display:flex;align-items:center;gap:10px}
+.toc-item:hover{border-color:var(--purple);transform:translateY(-2px)}
+.toc-num{min-width:28px;height:28px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-weight:800;font-size:12px;flex-shrink:0}
+.toc-name{font-family:'Syne',sans-serif;font-weight:700;font-size:13px;color:var(--white)}
+
+/* CONTENT */
+.content{max-width:960px;margin:0 auto;padding:0 24px 80px}
+.lesson-section{margin-bottom:72px;scroll-margin-top:80px}
+.section-divider{height:1px;background:linear-gradient(90deg,transparent,var(--border),transparent);margin:64px 0}
+.section-header{display:flex;align-items:flex-start;gap:16px;margin-bottom:28px}
+.section-num{min-width:48px;height:48px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-weight:800;font-size:18px;flex-shrink:0}
+.section-label{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--muted);margin-bottom:4px}
+.section-title{font-family:'Syne',sans-serif;font-size:clamp(22px,4vw,30px);font-weight:800;letter-spacing:-1px;color:var(--white);line-height:1.1}
+.section-sub{font-size:15px;color:var(--muted);margin-top:6px;line-height:1.6}
+
+/* CARDS */
+.def-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:22px 24px;margin-bottom:20px;position:relative;overflow:hidden}
+.def-card::before{content:'';position:absolute;top:0;left:0;width:3px;height:100%}
+.def-card.pink::before{background:linear-gradient(180deg,var(--pink),var(--purple))}
+.def-card.purple::before{background:linear-gradient(180deg,var(--purple),var(--blue))}
+.def-card.teal::before{background:linear-gradient(180deg,var(--teal),var(--green))}
+.def-card.amber::before{background:linear-gradient(180deg,var(--amber),var(--orange))}
+.def-card.red::before{background:linear-gradient(180deg,var(--red),var(--orange))}
+.def-card.green::before{background:linear-gradient(180deg,var(--green),var(--teal))}
+.def-card.blue::before{background:linear-gradient(180deg,var(--blue),var(--purple))}
+.card-label{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;margin-bottom:10px}
+.card-text{font-size:15px;color:var(--text);line-height:1.7}
+.card-text strong{color:var(--white)}
+.card-text code{font-family:'DM Mono',monospace;font-size:13px;color:var(--pink);background:rgba(244,114,182,.1);padding:2px 6px;border-radius:4px}
+
+/* STATUS CODE GRID */
+.status-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:10px;margin-bottom:20px}
+.status-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px 16px;transition:all .15s}
+.status-card:hover{transform:translateY(-2px)}
+.status-code{font-family:'Syne',sans-serif;font-weight:800;font-size:22px;margin-bottom:4px}
+.status-name{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
+.status-desc{font-size:12px;color:var(--text);line-height:1.5}
+.status-qa{font-size:11px;color:var(--muted);margin-top:6px;font-style:italic}
+
+/* METHOD PILLS */
+.method-grid{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:20px}
+.method-pill{border-radius:10px;padding:12px 18px;font-family:'DM Mono',monospace;font-size:12px;font-weight:500;cursor:pointer;transition:all .15s;border:1px solid transparent}
+.method-pill:hover{transform:translateY(-2px)}
+.method-pill .mcode{font-size:14px;font-weight:700;display:block;margin-bottom:3px}
+.method-pill .mdesc{font-size:11px;opacity:.8}
+
+/* REQUEST BUILDER */
+.req-builder{background:var(--card);border:1px solid var(--border);border-radius:16px;overflow:hidden;margin-bottom:20px}
+.req-header{background:linear-gradient(135deg,rgba(244,114,182,.08),rgba(155,111,247,.06));border-bottom:1px solid var(--border);padding:16px 20px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px}
+.req-title{font-family:'Syne',sans-serif;font-weight:800;font-size:15px;color:var(--white)}
+.req-badge{font-family:'DM Mono',monospace;font-size:10px;padding:3px 10px;border-radius:5px;background:rgba(244,114,182,.12);color:var(--pink);letter-spacing:.5px}
+.req-body{padding:20px}
+.req-scenario{background:var(--d3);border-left:3px solid var(--purple);border-radius:0 10px 10px 0;padding:14px 16px;margin-bottom:16px;font-size:14px;color:var(--text);line-height:1.6}
+.req-scenario strong{color:var(--purple)}
+.req-row{display:flex;gap:10px;margin-bottom:12px;align-items:center;flex-wrap:wrap}
+.req-label{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:1px;text-transform:uppercase;color:var(--muted);min-width:70px;flex-shrink:0}
+.method-select{background:var(--d3);border:2px solid var(--border);border-radius:8px;padding:10px 14px;color:var(--white);font-family:'DM Mono',monospace;font-size:13px;font-weight:700;outline:none;cursor:pointer;transition:border-color .2s;min-width:110px}
+.method-select:focus{border-color:var(--purple)}
+.method-select option{background:var(--d2)}
+.url-input{flex:1;background:var(--d3);border:2px solid var(--border);border-radius:8px;padding:10px 14px;color:var(--text);font-family:'DM Mono',monospace;font-size:13px;outline:none;transition:border-color .2s;min-width:200px}
+.url-input:focus{border-color:var(--purple);box-shadow:0 0 0 3px rgba(155,111,247,.1)}
+.url-input::placeholder{color:var(--muted)}
+.headers-area{width:100%;background:var(--d3);border:2px solid var(--border);border-radius:8px;padding:10px 14px;color:var(--text);font-family:'DM Mono',monospace;font-size:12px;outline:none;resize:vertical;min-height:70px;transition:border-color .2s;line-height:1.7}
+.headers-area:focus{border-color:var(--purple)}
+.body-area{width:100%;background:var(--d3);border:2px solid var(--border);border-radius:8px;padding:10px 14px;color:var(--text);font-family:'DM Mono',monospace;font-size:12px;outline:none;resize:vertical;min-height:90px;transition:border-color .2s;line-height:1.7}
+.body-area:focus{border-color:var(--purple)}
+.send-btn{background:linear-gradient(135deg,var(--purple),#7c3aed);color:#fff;border:none;border-radius:10px;padding:12px 24px;font-family:'Syne',sans-serif;font-weight:800;font-size:14px;cursor:pointer;transition:all .15s;box-shadow:0 4px 16px rgba(155,111,247,.35);display:flex;align-items:center;gap:8px}
+.send-btn:hover{transform:translateY(-1px);box-shadow:0 6px 20px rgba(155,111,247,.45)}
+.hint-btn{background:transparent;border:1px solid var(--border);color:var(--muted);border-radius:10px;padding:12px 18px;font-family:'Syne',sans-serif;font-weight:600;font-size:12px;cursor:pointer;transition:all .15s}
+.hint-btn:hover{border-color:var(--teal);color:var(--teal)}
+
+/* RESPONSE PANEL */
+.response-panel{display:none;margin-top:16px;animation:fadeUp .3s ease both}
+.response-panel.show{display:block}
+.res-tabs{display:flex;gap:4px;margin-bottom:12px}
+.res-tab{background:var(--d3);border:1px solid var(--border);border-radius:8px;padding:6px 14px;font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);cursor:pointer;transition:all .15s}
+.res-tab.active{background:var(--purple);border-color:var(--purple);color:#fff}
+.res-status-bar{display:flex;align-items:center;gap:16px;padding:10px 16px;background:var(--d3);border-radius:10px;margin-bottom:10px;font-family:'DM Mono',monospace;font-size:12px}
+.res-code{font-weight:700;font-size:14px}
+.res-code.ok{color:var(--green)}
+.res-code.err{color:var(--red)}
+.res-code.warn{color:var(--amber)}
+.res-meta{color:var(--muted)}
+.res-body{background:#060d16;border:1px solid #1e3048;border-radius:10px;padding:16px;font-family:'DM Mono',monospace;font-size:12px;line-height:1.8;overflow-x:auto;white-space:pre;color:#c9d1d9;max-height:300px;overflow-y:auto}
+.res-feedback{background:rgba(126,201,74,.06);border:1px solid rgba(126,201,74,.2);border-radius:10px;padding:14px 16px;margin-top:10px;font-size:13px;color:var(--text);line-height:1.6}
+.res-feedback.fail{background:rgba(224,85,85,.06);border-color:rgba(224,85,85,.2)}
+.res-feedback.partial{background:rgba(240,192,64,.06);border-color:rgba(240,192,64,.2)}
+.hint-panel{display:none;background:rgba(26,171,152,.06);border:1px solid rgba(26,171,152,.2);border-radius:12px;padding:14px 16px;margin-top:10px;font-size:13px;color:var(--text);line-height:1.6}
+.hint-panel.show{display:block}
+.hint-panel code{font-family:'DM Mono',monospace;color:var(--teal);background:rgba(26,171,152,.1);padding:2px 6px;border-radius:4px;font-size:12px}
+
+/* CODE BLOCK */
+.code-block{background:#060d16;border:1px solid #1e3048;border-radius:12px;margin-bottom:20px;overflow:hidden}
+.code-header{display:flex;align-items:center;justify-content:space-between;padding:10px 16px;border-bottom:1px solid #1e3048;background:rgba(255,255,255,.02)}
+.code-lang{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);letter-spacing:1px;text-transform:uppercase}
+.code-dots{display:flex;gap:6px}
+.code-dot{width:10px;height:10px;border-radius:50%}
+.code-pre{padding:20px;font-family:'DM Mono',monospace;font-size:13px;line-height:1.8;overflow-x:auto;white-space:pre;color:#c9d1d9}
+.kw{color:#ff79c6}.str{color:#f1fa8c}.num{color:#bd93f9}.cmt{color:#6272a4;font-style:italic}.fn{color:#50fa7b}.key{color:#8be9fd}.val{color:#ff79c6}
+
+/* ASSERTION BUILDER */
+.assertion-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:22px 24px;margin-bottom:20px}
+.assertion-title{font-family:'Syne',sans-serif;font-weight:800;font-size:15px;color:var(--white);margin-bottom:14px}
+.assertion-row{display:flex;align-items:center;gap:10px;margin-bottom:10px;padding:10px 14px;background:var(--d3);border-radius:10px;flex-wrap:wrap}
+.assertion-result{font-family:'DM Mono',monospace;font-size:11px;padding:3px 8px;border-radius:5px}
+.apass{background:rgba(126,201,74,.12);color:var(--green)}
+.afail{background:rgba(224,85,85,.1);color:var(--red)}
+.assertion-code{font-family:'DM Mono',monospace;font-size:12px;color:var(--text);flex:1}
+
+/* BUG HUNT */
+.bug-hunt{background:linear-gradient(135deg,rgba(224,85,85,.06),rgba(255,140,66,.04));border:1px solid rgba(224,85,85,.2);border-radius:16px;padding:28px;margin-bottom:20px}
+.bh-title{font-family:'Syne',sans-serif;font-weight:800;font-size:20px;color:var(--white);margin-bottom:6px}
+.bh-sub{font-size:14px;color:var(--muted);margin-bottom:20px}
+.bug-item{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:16px 18px;margin-bottom:12px;cursor:pointer;transition:all .15s}
+.bug-item:hover{border-color:var(--red)}
+.bug-item.found{border-color:var(--green);background:rgba(126,201,74,.05)}
+.bug-item.found .bug-status{color:var(--green)}
+.bug-q{font-family:'Syne',sans-serif;font-weight:700;font-size:14px;color:var(--white);margin-bottom:6px}
+.bug-scenario{font-size:13px;color:var(--muted);margin-bottom:10px;font-family:'DM Mono',monospace;line-height:1.6}
+.bug-opts{display:flex;flex-direction:column;gap:6px}
+.bug-opt{background:var(--d3);border:1.5px solid var(--border);border-radius:8px;padding:9px 14px;cursor:pointer;font-size:13px;color:var(--text);transition:all .15s;text-align:left;font-family:'DM Sans',sans-serif}
+.bug-opt:hover:not(.locked){border-color:var(--red);color:var(--white)}
+.bug-opt.correct{border-color:var(--green);background:rgba(126,201,74,.08);color:var(--green)}
+.bug-opt.wrong{border-color:var(--red);background:rgba(224,85,85,.08);color:var(--red)}
+.bug-opt.locked{cursor:default}
+.bug-status{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;margin-bottom:4px}
+
+/* INTERVIEW PREP */
+.interview-grid{display:grid;gap:14px;margin-bottom:20px}
+.interview-card{background:var(--card);border:1px solid var(--border);border-radius:14px;overflow:hidden;transition:all .15s}
+.interview-card:hover{border-color:var(--purple)}
+.iq-q{padding:18px 20px;font-family:'Syne',sans-serif;font-weight:700;font-size:15px;color:var(--white);cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:12px}
+.iq-toggle{font-family:'DM Mono',monospace;font-size:12px;color:var(--purple);flex-shrink:0}
+.iq-a{display:none;padding:0 20px 18px;font-size:14px;color:var(--text);line-height:1.7;border-top:1px solid var(--border)}
+.iq-a.show{display:block}
+.iq-a strong{color:var(--purple)}
+.iq-badge{font-family:'DM Mono',monospace;font-size:9px;padding:2px 7px;border-radius:4px;background:rgba(155,111,247,.12);color:var(--purple);margin-left:8px;vertical-align:middle}
+
+/* WHY CARD */
+.why-card{background:linear-gradient(135deg,rgba(244,114,182,.06),rgba(155,111,247,.04));border:1px solid rgba(244,114,182,.18);border-radius:14px;padding:20px 24px;margin-top:20px}
+.why-label{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--pink);margin-bottom:8px}
+.why-text{font-size:15px;color:var(--text);line-height:1.7}
+.why-text strong{color:var(--pink)}
+
+/* QUIZ */
+.quiz-section{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:26px;margin-top:24px}
+.quiz-title{font-family:'Syne',sans-serif;font-weight:800;font-size:16px;color:var(--white);margin-bottom:4px}
+.quiz-sub{font-size:13px;color:var(--muted);margin-bottom:18px}
+.quiz-q-text{font-family:'Syne',sans-serif;font-size:15px;font-weight:700;color:var(--white);margin-bottom:12px;line-height:1.4}
+.quiz-opts{display:flex;flex-direction:column;gap:8px;margin-bottom:12px}
+.quiz-opt{display:flex;align-items:center;gap:12px;background:var(--d3);border:2px solid var(--border);border-radius:11px;padding:12px 15px;cursor:pointer;text-align:left;width:100%;font-size:14px;color:var(--text);transition:all .15s;font-family:'DM Sans',sans-serif}
+.quiz-opt:hover:not(.locked){border-color:var(--purple);background:rgba(155,111,247,.06);transform:translateX(3px)}
+.quiz-opt.correct{border-color:var(--green);background:rgba(126,201,74,.08)}
+.quiz-opt.wrong{border-color:var(--red);background:rgba(224,85,85,.08)}
+.quiz-opt.locked{cursor:default}
+.opt-ltr{width:24px;height:24px;border-radius:6px;background:var(--card);border:1.5px solid var(--bhi);display:flex;align-items:center;justify-content:center;font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);flex-shrink:0}
+.quiz-opt.correct .opt-ltr{background:var(--green);border-color:var(--green);color:#fff}
+.quiz-opt.wrong .opt-ltr{background:var(--red);border-color:var(--red);color:#fff}
+.quiz-fb{display:none;background:var(--d3);border-radius:10px;padding:13px 16px;font-size:13px;color:var(--text);line-height:1.6;margin-top:10px}
+.quiz-fb.show{display:block;animation:fadeUp .3s ease both}
+.quiz-expl{margin-top:8px;padding:10px 14px;background:rgba(26,171,152,.07);border-left:3px solid var(--teal);border-radius:0 8px 8px 0;font-size:12px;color:var(--muted);font-style:italic}
+
+/* COMPLETE */
+.complete-banner{background:linear-gradient(135deg,rgba(244,114,182,.08),rgba(155,111,247,.06));border:1px solid rgba(244,114,182,.25);border-radius:18px;padding:40px;text-align:center;margin-top:56px}
+.cb-trophy{font-size:60px;display:block;margin-bottom:16px;animation:float 3s ease-in-out infinite}
+.cb-title{font-family:'Syne',sans-serif;font-size:28px;font-weight:800;color:var(--white);letter-spacing:-1px;margin-bottom:8px}
+.cb-sub{font-size:15px;color:var(--muted);margin-bottom:8px}
+.cb-watson{font-style:italic;color:var(--teal);font-size:14px;margin-bottom:28px}
+.cb-btns{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+.cb-btn{background:linear-gradient(135deg,var(--teal),var(--teal-d));color:#fff;border:none;border-radius:12px;padding:13px 24px;font-family:'Syne',sans-serif;font-weight:800;font-size:14px;cursor:pointer;box-shadow:0 4px 16px rgba(26,171,152,.3);text-decoration:none;display:inline-block}
+.cb-btn2{background:transparent;border:1.5px solid var(--border);color:var(--muted);border-radius:12px;padding:13px 20px;font-family:'Syne',sans-serif;font-weight:700;font-size:13px;cursor:pointer;text-decoration:none;display:inline-block}
+
+/* BOTTOM NAV */
+.bnav{position:fixed;bottom:0;left:0;right:0;background:rgba(7,9,13,.97);border-top:1px solid var(--border);padding:10px 16px;z-index:200;display:flex;justify-content:center;gap:8px;flex-wrap:wrap;backdrop-filter:blur(12px)}
+.bnav a{text-decoration:none;background:var(--d3);border:1px solid var(--border);border-radius:8px;padding:7px 12px;font-family:'Syne',sans-serif;font-weight:700;font-size:12px;color:var(--text);transition:all .15s}
+.bnav a:hover{border-color:var(--teal);color:var(--teal)}
+.bnav a.act{background:var(--purple);border-color:var(--purple);color:#fff}
+
+@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+@media(max-width:640px){.toc-grid{grid-template-columns:1fr 1fr}.req-row{flex-direction:column;align-items:flex-start}}
+</style>
+</head>
+<body>
+
+<div class="progress-bar" id="progressBar"></div>
+<a href="index.html" class="back-home">← Main Menu</a>
+
+<div class="page-header">
+  <div class="ph-badge">🚀 API TESTING</div>
+  <h1 class="ph-title">Postman &amp; API Testing<br><span>for QA</span></h1>
+  <p class="ph-sub">APIs don't lie — but they do break. Learn to test them like a detective: systematically, thoroughly, and with evidence.</p>
+  <div class="ph-stats">
+    <div class="ph-stat"><strong>9</strong> concepts</div>
+    <div class="ph-stat"><strong>7</strong> live simulators</div>
+    <div class="ph-stat"><strong>Bug hunt</strong> included</div>
+    <div class="ph-stat"><strong>Interview prep</strong> included</div>
+  </div>
+</div>
+
+<div class="toc">
+  <div class="toc-grid">
+    <a href="#s1" class="toc-item"><div class="toc-num" style="background:rgba(244,114,182,.15);color:var(--pink)">1</div><div class="toc-name">What is an API?</div></a>
+    <a href="#s2" class="toc-item"><div class="toc-num" style="background:rgba(155,111,247,.15);color:var(--purple)">2</div><div class="toc-name">HTTP Methods</div></a>
+    <a href="#s3" class="toc-item"><div class="toc-num" style="background:rgba(116,180,248,.15);color:var(--blue)">3</div><div class="toc-name">Status Codes</div></a>
+    <a href="#s4" class="toc-item"><div class="toc-num" style="background:rgba(26,171,152,.15);color:var(--teal)">4</div><div class="toc-name">Postman Basics</div></a>
+    <a href="#s5" class="toc-item"><div class="toc-num" style="background:rgba(240,192,64,.15);color:var(--amber)">5</div><div class="toc-name">Auth Testing</div></a>
+    <a href="#s6" class="toc-item"><div class="toc-num" style="background:rgba(126,201,74,.15);color:var(--green)">6</div><div class="toc-name">Assertions</div></a>
+    <a href="#s7" class="toc-item"><div class="toc-num" style="background:rgba(224,85,85,.15);color:var(--red)">7</div><div class="toc-name">Error Scenarios</div></a>
+    <a href="#s8" class="toc-item"><div class="toc-num" style="background:rgba(255,140,66,.15);color:var(--orange)">8</div><div class="toc-name">API + SQL Validation</div></a>
+    <a href="#s9" class="toc-item"><div class="toc-num" style="background:rgba(244,114,182,.15);color:var(--pink)">🔍</div><div class="toc-name">Bug Hunt + Interview</div></a>
+  </div>
+</div>
+
+<div class="content">
+
+  <!-- ══ 1. WHAT IS AN API ══ -->
+  <div class="lesson-section" id="s1">
+    <div class="section-header">
+      <div class="section-num" style="background:rgba(244,114,182,.15);color:var(--pink)">1</div>
+      <div>
+        <div class="section-label">Concept 01</div>
+        <div class="section-title">What is an API?</div>
+        <div class="section-sub">The contract between frontend and backend — and where most production bugs live.</div>
+      </div>
+    </div>
+
+    <div class="def-card pink">
+      <div class="card-label" style="color:var(--pink)">Definition</div>
+      <div class="card-text">An API (Application Programming Interface) is a <strong>contract between two systems</strong>. The client sends a request following the contract's rules. The server responds with data or an action result. REST APIs use HTTP — the same protocol as web browsers. As QA, you test that contract holds under all conditions.</div>
+    </div>
+
+    <div class="def-card teal">
+      <div class="card-label" style="color:var(--teal)">The Request-Response Cycle</div>
+      <div class="card-text">
+        Every API interaction has the same structure:<br><br>
+        <strong>Request:</strong> Method + URL + Headers + Body (optional)<br>
+        <strong>Response:</strong> Status Code + Headers + Body (JSON/XML)<br><br>
+        Example: <code>POST /api/users</code> with JSON body → returns <code>201 Created</code> + new user object
+      </div>
+    </div>
+
+    <div class="code-block">
+      <div class="code-header"><div class="code-dots"><div class="code-dot" style="background:#ff5f56"></div><div class="code-dot" style="background:#ffbd2e"></div><div class="code-dot" style="background:#27c93f"></div></div><div class="code-lang">HTTP Request anatomy</div></div>
+      <div class="code-pre"><span class="fn">POST</span> /api/users <span class="cmt">← Method + Endpoint</span>
+<span class="key">Host:</span> <span class="str">api.qalingo.com</span>
+<span class="key">Content-Type:</span> <span class="str">application/json</span>   <span class="cmt">← Headers</span>
+<span class="key">Authorization:</span> <span class="str">Bearer eyJhbGciOiJIUzI1Ni...</span>
+
+{                                         <span class="cmt">← Request Body</span>
+  <span class="key">"name"</span>: <span class="str">"Watson"</span>,
+  <span class="key">"email"</span>: <span class="str">"watson@qalingo.com"</span>,
+  <span class="key">"plan"</span>: <span class="str">"pro"</span>
+}
+
+<span class="cmt">─── Response ─────────────────────────────</span>
+<span class="num">201</span> Created
+<span class="key">Content-Type:</span> <span class="str">application/json</span>
+
+{
+  <span class="key">"id"</span>: <span class="str">"usr_abc123"</span>,
+  <span class="key">"name"</span>: <span class="str">"Watson"</span>,
+  <span class="key">"email"</span>: <span class="str">"watson@qalingo.com"</span>,
+  <span class="key">"status"</span>: <span class="str">"pending"</span>,     <span class="cmt">← QA: is this correct?</span>
+  <span class="key">"created_at"</span>: <span class="str">"2024-01-20T10:30:00Z"</span>
+}</div>
+    </div>
+
+    <div class="why-card">
+      <div class="why-label">💡 Why QA needs API testing</div>
+      <div class="why-text">UI tests can only verify what the user sees. <strong>API tests verify what actually happens in the system</strong> — the data that gets saved, the logic that runs, the security that holds. 80% of production bugs happen in the backend. You need API testing to find them.</div>
+    </div>
+
+    <div class="quiz-section">
+      <div class="quiz-title">🔍 Quick Check</div>
+      <div class="quiz-sub">API fundamentals</div>
+      <div id="q1"></div>
+    </div>
+  </div>
+
+  <div class="section-divider"></div>
+
+  <!-- ══ 2. HTTP METHODS ══ -->
+  <div class="lesson-section" id="s2">
+    <div class="section-header">
+      <div class="section-num" style="background:rgba(155,111,247,.15);color:var(--purple)">2</div>
+      <div>
+        <div class="section-label">Concept 02</div>
+        <div class="section-title">HTTP Methods</div>
+        <div class="section-sub">Each method is a verb. Know what it does — and how to break it.</div>
+      </div>
+    </div>
+
+    <div class="method-grid">
+      <div class="method-pill" style="background:rgba(126,201,74,.1);border-color:rgba(126,201,74,.3)">
+        <span class="mcode" style="color:var(--green)">GET</span>
+        <span class="mdesc" style="color:var(--muted)">Read data — no changes</span>
+      </div>
+      <div class="method-pill" style="background:rgba(26,171,152,.1);border-color:rgba(26,171,152,.3)">
+        <span class="mcode" style="color:var(--teal)">POST</span>
+        <span class="mdesc" style="color:var(--muted)">Create new resource</span>
+      </div>
+      <div class="method-pill" style="background:rgba(240,192,64,.1);border-color:rgba(240,192,64,.3)">
+        <span class="mcode" style="color:var(--amber)">PUT</span>
+        <span class="mdesc" style="color:var(--muted)">Replace entire resource</span>
+      </div>
+      <div class="method-pill" style="background:rgba(116,180,248,.1);border-color:rgba(116,180,248,.3)">
+        <span class="mcode" style="color:var(--blue)">PATCH</span>
+        <span class="mdesc" style="color:var(--muted)">Update partial fields</span>
+      </div>
+      <div class="method-pill" style="background:rgba(224,85,85,.1);border-color:rgba(224,85,85,.3)">
+        <span class="mcode" style="color:var(--red)">DELETE</span>
+        <span class="mdesc" style="color:var(--muted)">Remove the resource</span>
+      </div>
+    </div>
+
+    <div class="def-card purple">
+      <div class="card-label" style="color:var(--purple)">QA Testing Matrix per Method</div>
+      <div class="card-text">
+        <strong>GET:</strong> Test with valid ID, invalid ID, unauthorized user, non-existent resource<br>
+        <strong>POST:</strong> Valid body, missing required fields, duplicate data, invalid data types<br>
+        <strong>PUT:</strong> Full replacement — test that ALL fields update, not just changed ones<br>
+        <strong>PATCH:</strong> Partial update — test that ONLY specified fields change<br>
+        <strong>DELETE:</strong> Successful delete, delete non-existent, delete without permission, double delete
+      </div>
+    </div>
+
+    <div class="req-builder">
+      <div class="req-header">
+        <div class="req-title">✏️ Exercise 1 — Send your first API request</div>
+        <div class="req-badge">BEGINNER</div>
+      </div>
+      <div class="req-body">
+        <div class="req-scenario">
+          <strong>Scenario:</strong> Test the GET endpoint to retrieve a user by ID. Send a GET request to <code>/api/users/1</code> and verify the response contains the correct user data.
+        </div>
+        <div class="req-row">
+          <span class="req-label">Method</span>
+          <select class="method-select" id="m1">
+            <option value="GET">GET</option>
+            <option value="POST">POST</option>
+            <option value="PUT">PUT</option>
+            <option value="PATCH">PATCH</option>
+            <option value="DELETE">DELETE</option>
+          </select>
+          <input class="url-input" id="u1" placeholder="https://api.qalingo.com/users/1" value="/api/users/1"/>
+        </div>
+        <div class="req-row">
+          <span class="req-label">Headers</span>
+          <textarea class="headers-area" id="h1" placeholder="Authorization: Bearer token123&#10;Content-Type: application/json">Authorization: Bearer token123</textarea>
+        </div>
+        <div style="display:flex;gap:10px;margin-top:4px">
+          <button class="send-btn" onclick="sendRequest(1)">▶ Send Request</button>
+          <button class="hint-btn" onclick="toggleHint('hint1')">💡 Hint</button>
+        </div>
+        <div class="hint-panel" id="hint1">Use method <code>GET</code> and URL <code>/api/users/1</code>. GET requests don't need a body. Make sure you have an Authorization header.</div>
+        <div class="response-panel" id="resp1"></div>
+      </div>
+    </div>
+
+    <div class="quiz-section">
+      <div class="quiz-title">🔍 Quick Check</div>
+      <div class="quiz-sub">HTTP Methods</div>
+      <div id="q2"></div>
+    </div>
+  </div>
+
+  <div class="section-divider"></div>
+
+  <!-- ══ 3. STATUS CODES ══ -->
+  <div class="lesson-section" id="s3">
+    <div class="section-header">
+      <div class="section-num" style="background:rgba(116,180,248,.15);color:var(--blue)">3</div>
+      <div>
+        <div class="section-label">Concept 03</div>
+        <div class="section-title">HTTP Status Codes</div>
+        <div class="section-sub">The server's first word. Know what every code means for QA.</div>
+      </div>
+    </div>
+
+    <div class="status-grid">
+      <div class="status-card" style="border-color:rgba(126,201,74,.3)">
+        <div class="status-code" style="color:var(--green)">200</div>
+        <div class="status-name">OK</div>
+        <div class="status-desc">Request succeeded. GET, PUT, PATCH responses.</div>
+        <div class="status-qa">QA: verify body contains correct data</div>
+      </div>
+      <div class="status-card" style="border-color:rgba(26,171,152,.3)">
+        <div class="status-code" style="color:var(--teal)">201</div>
+        <div class="status-name">Created</div>
+        <div class="status-desc">Resource created. Expected for POST requests.</div>
+        <div class="status-qa">QA: verify Location header + new ID in body</div>
+      </div>
+      <div class="status-card" style="border-color:rgba(26,171,152,.3)">
+        <div class="status-code" style="color:var(--teal)">204</div>
+        <div class="status-name">No Content</div>
+        <div class="status-desc">Success with no response body. Common for DELETE.</div>
+        <div class="status-qa">QA: verify resource is actually gone in DB</div>
+      </div>
+      <div class="status-card" style="border-color:rgba(240,192,64,.3)">
+        <div class="status-code" style="color:var(--amber)">400</div>
+        <div class="status-name">Bad Request</div>
+        <div class="status-desc">Client sent malformed or invalid data.</div>
+        <div class="status-qa">QA: verify error message describes what's wrong</div>
+      </div>
+      <div class="status-card" style="border-color:rgba(224,85,85,.3)">
+        <div class="status-code" style="color:var(--red)">401</div>
+        <div class="status-name">Unauthorized</div>
+        <div class="status-desc">Missing or invalid authentication token.</div>
+        <div class="status-qa">QA: test with expired/missing/wrong token</div>
+      </div>
+      <div class="status-card" style="border-color:rgba(224,85,85,.3)">
+        <div class="status-code" style="color:var(--red)">403</div>
+        <div class="status-name">Forbidden</div>
+        <div class="status-desc">Authenticated but not authorized for this action.</div>
+        <div class="status-qa">QA: test role boundaries — can user A access user B's data?</div>
+      </div>
+      <div class="status-card" style="border-color:rgba(224,85,85,.3)">
+        <div class="status-code" style="color:var(--red)">404</div>
+        <div class="status-name">Not Found</div>
+        <div class="status-desc">Resource doesn't exist at this endpoint.</div>
+        <div class="status-qa">QA: test with non-existent IDs and wrong paths</div>
+      </div>
+      <div class="status-card" style="border-color:rgba(255,140,66,.3)">
+        <div class="status-code" style="color:var(--orange)">409</div>
+        <div class="status-name">Conflict</div>
+        <div class="status-desc">Duplicate data — e.g., email already exists.</div>
+        <div class="status-qa">QA: test duplicate registration, duplicate orders</div>
+      </div>
+      <div class="status-card" style="border-color:rgba(244,114,182,.3)">
+        <div class="status-code" style="color:var(--pink)">422</div>
+        <div class="status-name">Unprocessable</div>
+        <div class="status-desc">Syntactically correct but semantically invalid.</div>
+        <div class="status-qa">QA: send wrong data types, invalid enum values</div>
+      </div>
+      <div class="status-card" style="border-color:rgba(224,85,85,.3)">
+        <div class="status-code" style="color:var(--red)">500</div>
+        <div class="status-name">Server Error</div>
+        <div class="status-desc">Server crashed. Never acceptable in production.</div>
+        <div class="status-qa">QA: report immediately — 500s are always bugs</div>
+      </div>
+    </div>
+
+    <div class="req-builder">
+      <div class="req-header">
+        <div class="req-title">✏️ Exercise 2 — Trigger different status codes</div>
+        <div class="req-badge">BEGINNER</div>
+      </div>
+      <div class="req-body">
+        <div class="req-scenario">
+          <strong>Scenario:</strong> Test what happens with an invalid user ID. Send a GET request to <code>/api/users/9999</code> — a user that doesn't exist. What status code should you receive?
+        </div>
+        <div class="req-row">
+          <span class="req-label">Method</span>
+          <select class="method-select" id="m2"><option value="GET">GET</option><option value="POST">POST</option></select>
+          <input class="url-input" id="u2" placeholder="/api/users/9999"/>
+        </div>
+        <div class="req-row">
+          <span class="req-label">Headers</span>
+          <textarea class="headers-area" id="h2">Authorization: Bearer token123</textarea>
+        </div>
+        <div style="display:flex;gap:10px;margin-top:4px">
+          <button class="send-btn" onclick="sendRequest(2)">▶ Send Request</button>
+          <button class="hint-btn" onclick="toggleHint('hint2')">💡 Hint</button>
+        </div>
+        <div class="hint-panel" id="hint2">A non-existent user should return <code>404 Not Found</code>. Try the URL <code>/api/users/9999</code> with GET method.</div>
+        <div class="response-panel" id="resp2"></div>
+      </div>
+    </div>
+
+    <div class="quiz-section">
+      <div class="quiz-title">🔍 Quick Check</div>
+      <div class="quiz-sub">Status codes for QA</div>
+      <div id="q3"></div>
+    </div>
+  </div>
+
+  <div class="section-divider"></div>
+
+  <!-- ══ 4. POSTMAN BASICS ══ -->
+  <div class="lesson-section" id="s4">
+    <div class="section-header">
+      <div class="section-num" style="background:rgba(26,171,152,.15);color:var(--teal)">4</div>
+      <div>
+        <div class="section-label">Concept 04</div>
+        <div class="section-title">Postman Basics for QA</div>
+        <div class="section-sub">The essential tool — collections, environments, and variables.</div>
+      </div>
+    </div>
+
+    <div class="def-card teal">
+      <div class="card-label" style="color:var(--teal)">Core Postman Concepts</div>
+      <div class="card-text">
+        <strong>Collection:</strong> A folder of related API requests — e.g., "User Management" containing all user endpoints<br><br>
+        <strong>Environment:</strong> A set of variables for different contexts — <code>{{base_url}}</code> = staging vs production<br><br>
+        <strong>Variable:</strong> Reusable values — <code>{{token}}</code>, <code>{{user_id}}</code>, <code>{{base_url}}</code><br><br>
+        <strong>Test Script:</strong> JavaScript code that runs after a response to verify expectations automatically
+      </div>
+    </div>
+
+    <div class="code-block">
+      <div class="code-header"><div class="code-dots"><div class="code-dot" style="background:#ff5f56"></div><div class="code-dot" style="background:#ffbd2e"></div><div class="code-dot" style="background:#27c93f"></div></div><div class="code-lang">Postman — Using Variables</div></div>
+      <div class="code-pre"><span class="cmt">// In Postman request:</span>
+<span class="fn">GET</span> {{base_url}}/api/users/{{user_id}}
+<span class="key">Authorization:</span> <span class="str">Bearer {{token}}</span>
+
+<span class="cmt">// Environment variables:</span>
+base_url  = https://staging.qalingo.com
+user_id   = <span class="num">42</span>
+token     = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...
+
+<span class="cmt">// Set a variable from response (in Tests tab):</span>
+<span class="kw">const</span> response = pm.response.json();
+pm.environment.set(<span class="str">"user_id"</span>, response.id);
+pm.environment.set(<span class="str">"token"</span>, response.access_token);</div>
+    </div>
+
+    <div class="req-builder">
+      <div class="req-header">
+        <div class="req-title">✏️ Exercise 3 — Create a user (POST)</div>
+        <div class="req-badge">BEGINNER</div>
+      </div>
+      <div class="req-body">
+        <div class="req-scenario">
+          <strong>Scenario:</strong> Test the user registration endpoint. Send a POST request to <code>/api/users</code> with a JSON body containing name, email, and plan. Verify you get 201 Created with the new user ID.
+        </div>
+        <div class="req-row">
+          <span class="req-label">Method</span>
+          <select class="method-select" id="m3"><option value="GET">GET</option><option value="POST" selected>POST</option><option value="PUT">PUT</option><option value="DELETE">DELETE</option></select>
+          <input class="url-input" id="u3" placeholder="/api/users"/>
+        </div>
+        <div class="req-row">
+          <span class="req-label">Headers</span>
+          <textarea class="headers-area" id="h3">Content-Type: application/json
+Authorization: Bearer token123</textarea>
+        </div>
+        <div class="req-row">
+          <span class="req-label">Body</span>
+          <textarea class="body-area" id="b3" placeholder='{"name": "Watson", "email": "watson@qa.com", "plan": "pro"}'></textarea>
+        </div>
+        <div style="display:flex;gap:10px;margin-top:4px">
+          <button class="send-btn" onclick="sendRequest(3)">▶ Send Request</button>
+          <button class="hint-btn" onclick="toggleHint('hint3')">💡 Hint</button>
+        </div>
+        <div class="hint-panel" id="hint3">Use POST to <code>/api/users</code>. Body should be valid JSON with name, email and plan fields. Content-Type must be application/json.</div>
+        <div class="response-panel" id="resp3"></div>
+      </div>
+    </div>
+
+    <div class="why-card">
+      <div class="why-label">💡 QA Collection structure tip</div>
+      <div class="why-text">Organize your Postman collection like a test suite: <strong>Happy Path → Negative Tests → Edge Cases → Security Tests</strong>. Name each request descriptively: "POST /users — valid data (201)" and "POST /users — missing email (400)". Your collection IS your test documentation.</div>
+    </div>
+
+    <div class="quiz-section">
+      <div class="quiz-title">🔍 Quick Check</div>
+      <div class="quiz-sub">Postman fundamentals</div>
+      <div id="q4"></div>
+    </div>
+  </div>
+
+  <div class="section-divider"></div>
+
+  <!-- ══ 5. AUTH TESTING ══ -->
+  <div class="lesson-section" id="s5">
+    <div class="section-header">
+      <div class="section-num" style="background:rgba(240,192,64,.15);color:var(--amber)">5</div>
+      <div>
+        <div class="section-label">Concept 05</div>
+        <div class="section-title">Authentication Testing</div>
+        <div class="section-sub">The security layer — where QA prevents data breaches.</div>
+      </div>
+    </div>
+
+    <div class="def-card amber">
+      <div class="card-label" style="color:var(--amber)">Auth types QA must test</div>
+      <div class="card-text">
+        <strong>API Key:</strong> <code>x-api-key: abc123</code> — test with invalid, expired, missing key<br><br>
+        <strong>Bearer Token (JWT):</strong> <code>Authorization: Bearer eyJ...</code> — test expired token, wrong signature, no token<br><br>
+        <strong>Basic Auth:</strong> <code>Authorization: Basic base64(user:pass)</code> — test wrong credentials<br><br>
+        <strong>OAuth 2.0:</strong> Access tokens with scopes — test accessing resources outside your scope
+      </div>
+    </div>
+
+    <div class="def-card red">
+      <div class="card-label" style="color:var(--red)">Security Test Cases — Never Skip These</div>
+      <div class="card-text">
+        1. <strong>No token:</strong> Remove Authorization header entirely → expect 401<br>
+        2. <strong>Expired token:</strong> Use a JWT with past exp claim → expect 401<br>
+        3. <strong>Wrong token:</strong> Use another user's valid token → expect 403<br>
+        4. <strong>Tampered token:</strong> Modify the JWT payload → expect 401<br>
+        5. <strong>Privilege escalation:</strong> User tries to access admin endpoint → expect 403<br>
+        6. <strong>IDOR:</strong> User A requests User B's private data → expect 403
+      </div>
+    </div>
+
+    <div class="req-builder">
+      <div class="req-header">
+        <div class="req-title">✏️ Exercise 4 — Test authentication failure</div>
+        <div class="req-badge">INTERMEDIATE</div>
+      </div>
+      <div class="req-body">
+        <div class="req-scenario">
+          <strong>Scenario:</strong> Verify that the API correctly rejects requests with no authentication. Send a GET request to <code>/api/users/1</code> WITHOUT any Authorization header. The API should return 401 Unauthorized.
+        </div>
+        <div class="req-row">
+          <span class="req-label">Method</span>
+          <select class="method-select" id="m4"><option value="GET" selected>GET</option><option value="POST">POST</option></select>
+          <input class="url-input" id="u4" placeholder="/api/users/1" value="/api/users/1"/>
+        </div>
+        <div class="req-row">
+          <span class="req-label">Headers</span>
+          <textarea class="headers-area" id="h4" placeholder="Leave empty — no auth header to test 401"></textarea>
+        </div>
+        <div style="display:flex;gap:10px;margin-top:4px">
+          <button class="send-btn" onclick="sendRequest(4)">▶ Send Request</button>
+          <button class="hint-btn" onclick="toggleHint('hint4')">💡 Hint</button>
+        </div>
+        <div class="hint-panel" id="hint4">Leave the headers area EMPTY. The request should fail with 401 because there is no Authorization header. This verifies the API doesn't expose data to unauthenticated users.</div>
+        <div class="response-panel" id="resp4"></div>
+      </div>
+    </div>
+
+    <div class="quiz-section">
+      <div class="quiz-title">🔍 Quick Check</div>
+      <div class="quiz-sub">Authentication testing</div>
+      <div id="q5"></div>
+    </div>
+  </div>
+
+  <div class="section-divider"></div>
+
+  <!-- ══ 6. ASSERTIONS ══ -->
+  <div class="lesson-section" id="s6">
+    <div class="section-header">
+      <div class="section-num" style="background:rgba(126,201,74,.15);color:var(--green)">6</div>
+      <div>
+        <div class="section-label">Concept 06</div>
+        <div class="section-title">Assertions & Postman Tests</div>
+        <div class="section-sub">Automate your verification — don't just look at responses, assert them.</div>
+      </div>
+    </div>
+
+    <div class="def-card green">
+      <div class="card-label" style="color:var(--green)">pm.test() — Postman's assertion engine</div>
+      <div class="card-text">Assertions run automatically after every request. Instead of manually checking each response, Postman's <code>pm.test()</code> evaluates conditions and reports pass/fail — just like unit tests for your API. These go in the <strong>Tests</strong> tab of every request.</div>
+    </div>
+
+    <div class="code-block">
+      <div class="code-header"><div class="code-dots"><div class="code-dot" style="background:#ff5f56"></div><div class="code-dot" style="background:#ffbd2e"></div><div class="code-dot" style="background:#27c93f"></div></div><div class="code-lang">Postman Tests — pm.test() patterns</div></div>
+      <div class="code-pre"><span class="cmt">// 1. Status code assertion</span>
+pm.<span class="fn">test</span>(<span class="str">"Status is 201 Created"</span>, () => {
+  pm.response.<span class="fn">to.have.status</span>(<span class="num">201</span>);
+});
+
+<span class="cmt">// 2. Response time</span>
+pm.<span class="fn">test</span>(<span class="str">"Response time under 500ms"</span>, () => {
+  pm.<span class="fn">expect</span>(pm.response.responseTime).<span class="fn">to.be.below</span>(<span class="num">500</span>);
+});
+
+<span class="cmt">// 3. Body field assertions</span>
+<span class="kw">const</span> body = pm.response.<span class="fn">json</span>();
+pm.<span class="fn">test</span>(<span class="str">"User has correct email"</span>, () => {
+  pm.<span class="fn">expect</span>(body.email).<span class="fn">to.equal</span>(<span class="str">"watson@qa.com"</span>);
+});
+pm.<span class="fn">test</span>(<span class="str">"Status is pending on creation"</span>, () => {
+  pm.<span class="fn">expect</span>(body.status).<span class="fn">to.equal</span>(<span class="str">"pending"</span>);
+});
+pm.<span class="fn">test</span>(<span class="str">"ID is present"</span>, () => {
+  pm.<span class="fn">expect</span>(body.id).<span class="fn">to.exist</span>();
+});
+
+<span class="cmt">// 4. Schema validation</span>
+pm.<span class="fn">test</span>(<span class="str">"Response has required fields"</span>, () => {
+  pm.<span class="fn">expect</span>(body).<span class="fn">to.have.keys</span>([<span class="str">'id'</span>,<span class="str">'name'</span>,<span class="str">'email'</span>,<span class="str">'status'</span>,<span class="str">'created_at'</span>]);
+});
+
+<span class="cmt">// 5. Array length</span>
+pm.<span class="fn">test</span>(<span class="str">"Returns at least 1 user"</span>, () => {
+  pm.<span class="fn">expect</span>(body.users.length).<span class="fn">to.be.above</span>(<span class="num">0</span>);
+});</div>
+    </div>
+
+    <div class="assertion-card">
+      <div class="assertion-title">Live assertion results — what Q sees when running your tests:</div>
+      <div class="assertion-row"><span class="assertion-result apass">PASS</span><span class="assertion-code">pm.test("Status is 201 Created", () => pm.response.to.have.status(201))</span></div>
+      <div class="assertion-row"><span class="assertion-result apass">PASS</span><span class="assertion-code">pm.test("Response time under 500ms", () => expect(responseTime).below(500))</span></div>
+      <div class="assertion-row"><span class="assertion-result apass">PASS</span><span class="assertion-code">pm.test("User email matches", () => expect(body.email).equal("watson@qa.com"))</span></div>
+      <div class="assertion-row"><span class="assertion-result afail">FAIL</span><span class="assertion-code">pm.test("Status is pending", () => expect(body.status).equal("pending")) → got "active"</span></div>
+      <div class="assertion-row"><span class="assertion-result apass">PASS</span><span class="assertion-code">pm.test("ID is present", () => expect(body.id).to.exist())</span></div>
+    </div>
+
+    <div class="why-card">
+      <div class="why-label">💡 The one failing assertion</div>
+      <div class="why-text">Notice the 4th assertion fails — the user was created with status "active" instead of "pending". <strong>That's a real bug</strong> — users should require email verification before being active. Without assertions, you'd have to manually read every response. With assertions, QALingo catches it automatically every time.</div>
+    </div>
+
+    <div class="quiz-section">
+      <div class="quiz-title">🔍 Quick Check</div>
+      <div class="quiz-sub">API Assertions</div>
+      <div id="q6"></div>
+    </div>
+  </div>
+
+  <div class="section-divider"></div>
+
+  <!-- ══ 7. ERROR SCENARIOS ══ -->
+  <div class="lesson-section" id="s7">
+    <div class="section-header">
+      <div class="section-num" style="background:rgba(224,85,85,.15);color:var(--red)">7</div>
+      <div>
+        <div class="section-label">Concept 07</div>
+        <div class="section-title">Error Scenario Testing</div>
+        <div class="section-sub">The happy path is easy. The bugs live in the errors.</div>
+      </div>
+    </div>
+
+    <div class="def-card red">
+      <div class="card-label" style="color:var(--red)">Error Scenarios Every QA Must Test</div>
+      <div class="card-text">
+        <strong>Missing required fields:</strong> Send POST without required body fields → 400<br>
+        <strong>Invalid data types:</strong> Send string where integer expected → 422<br>
+        <strong>Invalid enum values:</strong> Send plan="superduper" when only free/pro valid → 422<br>
+        <strong>Empty body:</strong> Send POST with {} or no body → 400<br>
+        <strong>SQL injection:</strong> Send <code>{"email": "' OR 1=1--"}</code> → 400 (never 500)<br>
+        <strong>Oversized payload:</strong> Send 10MB JSON body → 413<br>
+        <strong>Timeout:</strong> Slow endpoint with 30s response → client timeout
+      </div>
+    </div>
+
+    <div class="req-builder">
+      <div class="req-header">
+        <div class="req-title">✏️ Exercise 5 — Test missing required fields</div>
+        <div class="req-badge">INTERMEDIATE</div>
+      </div>
+      <div class="req-body">
+        <div class="req-scenario">
+          <strong>Scenario:</strong> The <code>POST /api/users</code> endpoint requires name, email, and plan. Send a request with the email field MISSING. Verify the API returns 400 with a descriptive error message.
+        </div>
+        <div class="req-row">
+          <span class="req-label">Method</span>
+          <select class="method-select" id="m5"><option value="GET">GET</option><option value="POST" selected>POST</option></select>
+          <input class="url-input" id="u5" value="/api/users"/>
+        </div>
+        <div class="req-row">
+          <span class="req-label">Headers</span>
+          <textarea class="headers-area" id="h5">Content-Type: application/json
+Authorization: Bearer token123</textarea>
+        </div>
+        <div class="req-row">
+          <span class="req-label">Body</span>
+          <textarea class="body-area" id="b5" placeholder='{"name": "Watson", "plan": "pro"}'></textarea>
+        </div>
+        <div style="display:flex;gap:10px;margin-top:4px">
+          <button class="send-btn" onclick="sendRequest(5)">▶ Send Request</button>
+          <button class="hint-btn" onclick="toggleHint('hint5')">💡 Hint</button>
+        </div>
+        <div class="hint-panel" id="hint5">Send the body WITHOUT the email field: <code>{"name": "Watson", "plan": "pro"}</code>. The API should reject this with 400 and tell you which field is missing.</div>
+        <div class="response-panel" id="resp5"></div>
+      </div>
+    </div>
+
+    <div class="req-builder">
+      <div class="req-header">
+        <div class="req-title">✏️ Exercise 6 — Test SQL injection attempt</div>
+        <div class="req-badge">INTERMEDIATE</div>
+      </div>
+      <div class="req-body">
+        <div class="req-scenario">
+          <strong>Scenario:</strong> Security test — verify the API properly sanitizes malicious input. Send a POST request with a SQL injection string in the email field. The API should return 400, never 500.
+        </div>
+        <div class="req-row">
+          <span class="req-label">Method</span>
+          <select class="method-select" id="m6"><option value="GET">GET</option><option value="POST" selected>POST</option></select>
+          <input class="url-input" id="u6" value="/api/users"/>
+        </div>
+        <div class="req-row">
+          <span class="req-label">Headers</span>
+          <textarea class="headers-area" id="h6">Content-Type: application/json
+Authorization: Bearer token123</textarea>
+        </div>
+        <div class="req-row">
+          <span class="req-label">Body</span>
+          <textarea class="body-area" id="b6">{"name": "Hacker", "email": "' OR 1=1--", "plan": "pro"}</textarea>
+        </div>
+        <div style="display:flex;gap:10px;margin-top:4px">
+          <button class="send-btn" onclick="sendRequest(6)">▶ Send Request</button>
+          <button class="hint-btn" onclick="toggleHint('hint6')">💡 Hint</button>
+        </div>
+        <div class="hint-panel" id="hint6">A 500 response here means the SQL injection worked — server error from unhandled injection. A 400 means the API validates and sanitizes input correctly. Which did you get?</div>
+        <div class="response-panel" id="resp6"></div>
+      </div>
+    </div>
+
+    <div class="quiz-section">
+      <div class="quiz-title">🔍 Quick Check</div>
+      <div class="quiz-sub">Error scenario testing</div>
+      <div id="q7"></div>
+    </div>
+  </div>
+
+  <div class="section-divider"></div>
+
+  <!-- ══ 8. API + SQL ══ -->
+  <div class="lesson-section" id="s8">
+    <div class="section-header">
+      <div class="section-num" style="background:rgba(255,140,66,.15);color:var(--orange)">8</div>
+      <div>
+        <div class="section-label">Concept 08</div>
+        <div class="section-title">API + SQL Cross-Validation</div>
+        <div class="section-sub">The most powerful QA technique — verify API claims against the database.</div>
+      </div>
+    </div>
+
+    <div class="def-card amber">
+      <div class="card-label" style="color:var(--orange)">The Complete Validation Flow</div>
+      <div class="card-text">
+        <strong>Step 1:</strong> Call the API — <code>POST /api/users</code> → 201 Created<br>
+        <strong>Step 2:</strong> Verify the API response body — correct fields, correct values<br>
+        <strong>Step 3:</strong> Query the database — <code>SELECT * FROM users WHERE email = '...'</code><br>
+        <strong>Step 4:</strong> Compare — does the DB reflect exactly what the API claimed?<br>
+        <strong>Step 5:</strong> Check side effects — were any other tables affected?
+      </div>
+    </div>
+
+    <div class="code-block">
+      <div class="code-header"><div class="code-dots"><div class="code-dot" style="background:#ff5f56"></div><div class="code-dot" style="background:#ffbd2e"></div><div class="code-dot" style="background:#27c93f"></div></div><div class="code-lang">API call + SQL verification</div></div>
+      <div class="code-pre"><span class="cmt">-- Step 1: API call</span>
+<span class="fn">POST</span> /api/users
+Body: {"name":"Watson","email":"watson@qa.com","plan":"pro"}
+Response: <span class="num">201</span> {"id":"usr_abc","status":"pending",...}
+
+<span class="cmt">-- Step 2: Verify in database (run in DB client)</span>
+<span class="kw">SELECT</span> id, name, email, status, plan, created_at
+<span class="kw">FROM</span> users
+<span class="kw">WHERE</span> email = <span class="str">'watson@qa.com'</span>;
+
+<span class="cmt">-- Expected result:</span>
+<span class="cmt">-- id: usr_abc (matches API response) ✅</span>
+<span class="cmt">-- status: pending (not active) ✅</span>
+<span class="cmt">-- plan: pro ✅</span>
+<span class="cmt">-- created_at: today's date ✅</span>
+
+<span class="cmt">-- Step 3: Check no duplicate was created</span>
+<span class="kw">SELECT</span> <span class="fn">COUNT</span>(*) <span class="kw">FROM</span> users
+<span class="kw">WHERE</span> email = <span class="str">'watson@qa.com'</span>;
+<span class="cmt">-- Expected: 1 (not 2)</span></div>
+    </div>
+
+    <div class="why-card">
+      <div class="why-label">💡 The API+SQL combo catches what neither alone can</div>
+      <div class="why-text">The API says 201 Created. You check the response — looks perfect. But the DB has the status as "active" instead of "pending." Or the created_at timestamp is yesterday. Or there are two records. <strong>Only the database cross-check catches these bugs.</strong> This technique is what separates a mid-level QA from a senior one.</div>
+    </div>
+
+    <div class="quiz-section">
+      <div class="quiz-title">🔍 Quick Check</div>
+      <div class="quiz-sub">API + SQL validation</div>
+      <div id="q8"></div>
+    </div>
+  </div>
+
+  <div class="section-divider"></div>
+
+  <!-- ══ 9. BUG HUNT + INTERVIEW ══ -->
+  <div class="lesson-section" id="s9">
+    <div class="section-header">
+      <div class="section-num" style="background:rgba(244,114,182,.15);color:var(--pink)">🔍</div>
+      <div>
+        <div class="section-label">Final Challenge</div>
+        <div class="section-title">API Bug Hunt + Interview Prep</div>
+        <div class="section-sub">Find the bugs. Answer the questions. Get the job.</div>
+      </div>
+    </div>
+
+    <div class="bug-hunt">
+      <div class="bh-title">🐛 API Bug Hunt — 5 bugs to find</div>
+      <div class="bh-sub">Each scenario shows an API request and its response. Identify what's wrong.</div>
+
+      <div class="bug-item" id="bug1">
+        <div class="bug-status" id="bug1-status">UNSOLVED</div>
+        <div class="bug-q">Bug #1 — What's wrong with this response?</div>
+        <div class="bug-scenario">POST /api/users {"name":"Ana","email":"ana@test.com","plan":"pro"}<br>→ Response: 200 OK {"id":"usr_1","status":"active"}</div>
+        <div class="bug-opts">
+          <button class="bug-opt" onclick="checkBug(1,0)">A. The response body is missing the email field</button>
+          <button class="bug-opt" onclick="checkBug(1,1)">B. Should be 201 Created, not 200 OK; status should be 'pending' not 'active'</button>
+          <button class="bug-opt" onclick="checkBug(1,2)">C. The plan field is missing from the response</button>
+          <button class="bug-opt" onclick="checkBug(1,3)">D. The ID format is wrong</button>
+        </div>
+      </div>
+
+      <div class="bug-item" id="bug2">
+        <div class="bug-status" id="bug2-status">UNSOLVED</div>
+        <div class="bug-q">Bug #2 — What's the security problem here?</div>
+        <div class="bug-scenario">GET /api/users/42<br>Headers: (no Authorization header)<br>→ Response: 200 OK {"id":42,"name":"Ana","email":"ana@test.com"}</div>
+        <div class="bug-opts">
+          <button class="bug-opt" onclick="checkBug(2,0)">A. The response is too slow</button>
+          <button class="bug-opt" onclick="checkBug(2,1)">B. API should return 401 — exposing user data without authentication is a security vulnerability</button>
+          <button class="bug-opt" onclick="checkBug(2,2)">C. The endpoint path is wrong</button>
+          <button class="bug-opt" onclick="checkBug(2,3)">D. The ID should be a string, not a number</button>
+        </div>
+      </div>
+
+      <div class="bug-item" id="bug3">
+        <div class="bug-status" id="bug3-status">UNSOLVED</div>
+        <div class="bug-q">Bug #3 — What's wrong with this error response?</div>
+        <div class="bug-scenario">POST /api/users {"name":"Bob"}<br>(email and plan missing)<br>→ Response: 500 Internal Server Error</div>
+        <div class="bug-opts">
+          <button class="bug-opt" onclick="checkBug(3,0)">A. The name 'Bob' is too short</button>
+          <button class="bug-opt" onclick="checkBug(3,1)">B. Should return 400 Bad Request with a descriptive error — a 500 means the missing field caused a server crash (unhandled exception)</button>
+          <button class="bug-opt" onclick="checkBug(3,2)">C. The endpoint should accept partial data</button>
+          <button class="bug-opt" onclick="checkBug(3,3)">D. Nothing is wrong — 500 is acceptable for missing fields</button>
+        </div>
+      </div>
+
+      <div class="bug-item" id="bug4">
+        <div class="bug-status" id="bug4-status">UNSOLVED</div>
+        <div class="bug-q">Bug #4 — What IDOR vulnerability is present?</div>
+        <div class="bug-scenario">User A (id:1) is authenticated with their token.<br>GET /api/users/2/orders<br>→ Response: 200 OK [array of User B's orders]</div>
+        <div class="bug-opts">
+          <button class="bug-opt" onclick="checkBug(4,0)">A. The orders array is empty</button>
+          <button class="bug-opt" onclick="checkBug(4,1)">B. User A should not be able to see User B's orders — should return 403 Forbidden (IDOR: Insecure Direct Object Reference)</button>
+          <button class="bug-opt" onclick="checkBug(4,2)">C. The URL format is incorrect</button>
+          <button class="bug-opt" onclick="checkBug(4,3)">D. Orders should use POST not GET</button>
+        </div>
+      </div>
+
+      <div class="bug-item" id="bug5">
+        <div class="bug-status" id="bug5-status">UNSOLVED</div>
+        <div class="bug-q">Bug #5 — What's wrong with this DELETE response?</div>
+        <div class="bug-scenario">DELETE /api/users/1<br>→ Response: 200 OK {"message":"User deleted"}<br>→ GET /api/users/1 still returns 200 OK with the user data</div>
+        <div class="bug-opts">
+          <button class="bug-opt" onclick="checkBug(5,0)">A. DELETE should return 201, not 200</button>
+          <button class="bug-opt" onclick="checkBug(5,1)">B. The DELETE returned success but the resource still exists — the delete didn't actually execute in the database</button>
+          <button class="bug-opt" onclick="checkBug(5,2)">C. The success message format is wrong</button>
+          <button class="bug-opt" onclick="checkBug(5,3)">D. DELETE should return the deleted user object</button>
+        </div>
+      </div>
+
+      <div id="bug-score" style="margin-top:16px;font-family:'Syne',sans-serif;font-weight:800;font-size:16px;color:var(--muted)">Bugs found: 0/5</div>
+    </div>
+
+    <!-- INTERVIEW PREP -->
+    <div style="font-family:'DM Mono',monospace;font-size:10px;letter-spacing:2px;text-transform:uppercase;color:var(--purple);margin-bottom:16px">Top 10 API QA Interview Questions</div>
+    <div class="interview-grid">
+      <div class="interview-card">
+        <div class="iq-q" onclick="toggleIQ(1)"><span>What is the difference between 401 and 403?<span class="iq-badge">Senior</span></span><span class="iq-toggle" id="iq1-toggle">Show →</span></div>
+        <div class="iq-a" id="iq1-a"><strong>401 Unauthorized</strong> means the request has no valid authentication — the user isn't identified. <strong>403 Forbidden</strong> means the user IS authenticated but doesn't have permission for this action. Think: 401 = "Who are you?", 403 = "I know who you are, but no."</div>
+      </div>
+      <div class="interview-card">
+        <div class="iq-q" onclick="toggleIQ(2)"><span>What is IDOR and how do you test for it?<span class="iq-badge">Security</span></span><span class="iq-toggle" id="iq2-toggle">Show →</span></div>
+        <div class="iq-a" id="iq2-a"><strong>IDOR (Insecure Direct Object Reference)</strong> is when a user can access another user's resource by changing an ID in the URL. Test it by: (1) Log in as User A, (2) Get your resource URL e.g. /api/orders/123, (3) Change 123 to another user's ID, (4) If you can see their data — that's an IDOR bug. Always test with two different user accounts.</div>
+      </div>
+      <div class="interview-card">
+        <div class="iq-q" onclick="toggleIQ(3)"><span>What would you check in a POST /login response?<span class="iq-badge">Mid</span></span><span class="iq-toggle" id="iq3-toggle">Show →</span></div>
+        <div class="iq-a" id="iq3-a">Check: <strong>Status 200</strong> for valid credentials (not 201). <strong>Token present</strong> in response body or cookie. <strong>Token expiry</strong> is set correctly. <strong>401 for wrong password</strong>. <strong>Account lockout</strong> after X failed attempts. <strong>No sensitive data</strong> in error messages (don't reveal if email exists). <strong>Response time</strong> is consistent regardless of whether email exists (prevent timing attacks).</div>
+      </div>
+      <div class="interview-card">
+        <div class="iq-q" onclick="toggleIQ(4)"><span>What is the difference between PUT and PATCH?<span class="iq-badge">Basic</span></span><span class="iq-toggle" id="iq4-toggle">Show →</span></div>
+        <div class="iq-a" id="iq4-a"><strong>PUT</strong> replaces the entire resource — if you send PUT with only {name: "Watson"}, the email and plan fields should be cleared/reset. <strong>PATCH</strong> updates only the fields you send — if you send PATCH with {name: "Watson"}, only the name changes and everything else stays the same. Test this by calling GET after each to verify exactly which fields changed.</div>
+      </div>
+      <div class="interview-card">
+        <div class="iq-q" onclick="toggleIQ(5)"><span>How do you test an API without a UI?<span class="iq-badge">Basic</span></span><span class="iq-toggle" id="iq5-toggle">Show →</span></div>
+        <div class="iq-a" id="iq5-a">Use <strong>Postman</strong> to send requests manually and inspect responses. Write <strong>pm.test() assertions</strong> to automate verification. Use <strong>Newman</strong> to run collections in CI/CD. Read the <strong>API documentation</strong> or Swagger/OpenAPI spec to understand expected behavior. Use <strong>curl</strong> for quick command-line testing. Validate responses against the <strong>JSON schema</strong>.</div>
+      </div>
+      <div class="interview-card">
+        <div class="iq-q" onclick="toggleIQ(6)"><span>A POST endpoint returns 200 instead of 201. Is this a bug?<span class="iq-badge">Mid</span></span><span class="iq-toggle" id="iq6-toggle">Show →</span></div>
+        <div class="iq-a" id="iq6-a">It depends on the API contract. <strong>Technically: yes</strong> — REST convention says POST that creates a resource should return 201 Created. However, if the API documentation explicitly states 200 for this endpoint, it's not a bug — it's a documentation decision. <strong>As a QA:</strong> raise it as a defect referencing REST standards, and let the team decide. Also verify the resource was actually created regardless of the status code.</div>
+      </div>
+      <div class="interview-card">
+        <div class="iq-q" onclick="toggleIQ(7)"><span>What is the difference between functional and non-functional API testing?<span class="iq-badge">Senior</span></span><span class="iq-toggle" id="iq7-toggle">Show →</span></div>
+        <div class="iq-a" id="iq7-a"><strong>Functional:</strong> Does the API do what it should? Correct status codes, correct response body, correct database changes, correct error messages. <strong>Non-functional:</strong> How well does it perform? Response time under load (performance testing), behavior with 1000 concurrent users (load testing), security vulnerabilities (security testing), behavior with malformed input (robustness testing). Both are required for a complete API test suite.</div>
+      </div>
+      <div class="interview-card">
+        <div class="iq-q" onclick="toggleIQ(8)"><span>How do you test an API endpoint that sends emails?<span class="iq-badge">Mid</span></span><span class="iq-toggle" id="iq8-toggle">Show →</span></div>
+        <div class="iq-a" id="iq8-a">Use a <strong>test email service</strong> like Mailtrap, MailHog, or Mailosaur — they catch emails in a test inbox without sending them. Verify: (1) Email was sent at all, (2) Correct recipient, (3) Correct subject and body content, (4) Links in email work, (5) No email sent on failed requests, (6) No duplicate emails on retry. Also check the database to confirm the email_sent flag or timestamp was recorded.</div>
+      </div>
+      <div class="interview-card">
+        <div class="iq-q" onclick="toggleIQ(9)"><span>What do you check when testing pagination?<span class="iq-badge">Mid</span></span><span class="iq-toggle" id="iq9-toggle">Show →</span></div>
+        <div class="iq-a" id="iq9-a">Test: <strong>First page</strong> returns correct count. <strong>Last page</strong> has remaining items (might be less than page size). <strong>Page beyond last</strong> returns empty array or 404, not an error. <strong>Sorting is consistent</strong> across pages — no item appears twice or is skipped. <strong>Total count</strong> in response matches actual total. <strong>page=0 or page=-1</strong> handled gracefully. <strong>Limit=0</strong> — what happens? <strong>Very large limit</strong> — does the API protect itself?</div>
+      </div>
+      <div class="interview-card">
+        <div class="iq-q" onclick="toggleIQ(10)"><span>How do you handle test data in API testing?<span class="iq-badge">Senior</span></span><span class="iq-toggle" id="iq10-toggle">Show →</span></div>
+        <div class="iq-a" id="iq10-a">Best practices: <strong>Create fresh data</strong> at the start of each test (don't rely on existing data). <strong>Clean up</strong> after tests — delete what you created. Use <strong>Postman pre-request scripts</strong> to create prerequisite data. Use <strong>environment variables</strong> to pass IDs between requests. In CI/CD, use a <strong>dedicated test environment</strong> with a seeded database. Never run destructive tests against production. Use <strong>data factories</strong> or fixtures for consistent test data.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="complete-banner">
+    <span class="cb-trophy">🏆</span>
+    <div class="cb-title">API Testing for QA — Complete!</div>
+    <div class="cb-sub">You can now test REST APIs, write assertions, hunt security bugs, and answer interview questions confidently.</div>
+    <div class="cb-watson">"QAlemental, Dear Watson. APIs no longer hide their secrets from you."</div>
+    <div class="cb-btns">
+      <a href="index.html" class="cb-btn">← Main Menu</a>
+      <a href="qalingo-sql-qa.html" class="cb-btn2">SQL for QA →</a>
+    </div>
+  </div>
+
+</div>
+
+<div class="bnav">
+  <a href="index.html">🏠 Home</a>
+  <a href="qalingo-istqb-simulator.html">🎯 Exam</a>
+  <a href="qalingo-programming-qa.html">💻 Programming</a>
+  <a href="qalingo-testing-manual.html">📋 Manual</a>
+  <a href="qalingo-sql-qa.html">🗄️ SQL</a>
+  <a href="qalingo-api-testing.html" class="act">🚀 API</a>
+  <a href="qalingo-glossary.html">📖 Glossary</a>
+</div>
+
+<script>
+// Theme
+(function(){
+  var L={'--dark':'#eef4fb','--d2':'#e0ecf7','--d3':'#cfe0f0','--card':'#f8fbff','--border':'#b8d4e8','--bhi':'#90b8d5','--text':'#0f1f35','--muted':'#3d607a','--white':'#0a1828'};
+  if(localStorage.getItem('qt')==='l'){var r=document.documentElement;Object.keys(L).forEach(function(k){r.style.setProperty(k,L[k]);});}
+})();
+
+// ══ SIMULATED API SERVER ══
+var API_DB = {
+  users: {
+    1: {id:1,name:'Ana García',email:'ana@test.com',status:'active',plan:'pro',created_at:'2024-01-15T10:00:00Z'},
+    2: {id:2,name:'John Smith',email:'john@test.com',status:'active',plan:'free',created_at:'2024-01-16T11:00:00Z'},
+    42: {id:42,name:'Watson QA',email:'watson@qa.com',status:'pending',plan:'pro',created_at:'2024-01-20T09:00:00Z'},
+  }
+};
+
+function parseHeaders(hStr) {
+  var h = {};
+  if(!hStr || !hStr.trim()) return h;
+  hStr.split('\n').forEach(function(line) {
+    var idx = line.indexOf(':');
+    if(idx > 0) {
+      var k = line.substring(0,idx).trim().toLowerCase();
+      var v = line.substring(idx+1).trim();
+      h[k] = v;
+    }
+  });
+  return h;
+}
+
+function simulateAPI(method, url, headers, body) {
+  method = method.toUpperCase();
+  url = url.trim();
+  var hasAuth = !!(headers['authorization'] || headers['x-api-key']);
+
+  // POST /api/users
+  if(method === 'POST' && url.match(/\/api\/users\/?$/)) {
+    if(!hasAuth) return {status:401,data:{error:'Unauthorized',message:'Authorization header required'}};
+    var bd = {};
+    try { bd = body ? JSON.parse(body) : {}; } catch(e) { return {status:400,data:{error:'Bad Request',message:'Invalid JSON in request body'}}; }
+    // Check for injection
+    var emailStr = bd.email || '';
+    if(emailStr.includes("'") || emailStr.includes('--') || emailStr.includes('OR 1=1')) {
+      return {status:400,data:{error:'Bad Request',message:'Invalid email format — potentially malicious input detected'}};
+    }
+    if(!bd.email) return {status:400,data:{error:'Bad Request',message:"Missing required field: 'email'",fields:['email']}};
+    if(!bd.name) return {status:400,data:{error:'Bad Request',message:"Missing required field: 'name'",fields:['name']}};
+    if(!bd.plan) return {status:400,data:{error:'Bad Request',message:"Missing required field: 'plan'",fields:['plan']}};
+    if(!['free','pro','team'].includes(bd.plan)) return {status:422,data:{error:'Unprocessable Entity',message:"Invalid plan. Must be: free, pro, or team"}};
+    var newUser = {id:'usr_'+Math.random().toString(36).slice(2,8),name:bd.name,email:bd.email,status:'pending',plan:bd.plan,created_at:new Date().toISOString()};
+    return {status:201,data:newUser,responseTime:142};
+  }
+
+  // GET /api/users/:id
+  var userMatch = url.match(/\/api\/users\/(\d+)\/?$/);
+  if(method === 'GET' && userMatch) {
+    if(!hasAuth) return {status:401,data:{error:'Unauthorized',message:'Missing Authorization header. Include: Authorization: Bearer <token>'}};
+    var uid = parseInt(userMatch[1]);
+    var user = API_DB.users[uid];
+    if(!user) return {status:404,data:{error:'Not Found',message:'User with id '+uid+' does not exist'}};
+    return {status:200,data:user,responseTime:89};
+  }
+
+  // DELETE /api/users/:id
+  var delMatch = url.match(/\/api\/users\/(\d+)\/?$/);
+  if(method === 'DELETE' && delMatch) {
+    if(!hasAuth) return {status:401,data:{error:'Unauthorized',message:'Authorization required'}};
+    return {status:204,data:null,responseTime:112};
+  }
+
+  // Unknown endpoint
+  return {status:404,data:{error:'Not Found',message:'Endpoint '+method+' '+url+' does not exist'}};
+}
+
+function sendRequest(n) {
+  var method = document.getElementById('m'+n) ? document.getElementById('m'+n).value : 'GET';
+  var url = document.getElementById('u'+n) ? document.getElementById('u'+n).value.trim() : '';
+  var headersRaw = document.getElementById('h'+n) ? document.getElementById('h'+n).value : '';
+  var bodyRaw = document.getElementById('b'+n) ? document.getElementById('b'+n).value : '';
+  var headers = parseHeaders(headersRaw);
+  var panel = document.getElementById('resp'+n);
+
+  if(!url) {
+    panel.innerHTML = '<div style="background:rgba(240,192,64,.06);border:1px solid rgba(240,192,64,.2);border-radius:12px;padding:14px;color:var(--amber);font-size:13px">⚠️ Enter a URL to send the request</div>';
+    panel.classList.add('show'); return;
+  }
+
+  var result = simulateAPI(method, url, headers, bodyRaw);
+  var statusColor = result.status < 300 ? 'var(--green)' : result.status < 400 ? 'var(--amber)' : 'var(--red)';
+  var statusClass = result.status < 300 ? 'ok' : result.status >= 500 ? 'err' : 'warn';
+  var bodyStr = result.data !== null ? JSON.stringify(result.data, null, 2) : '(no content)';
+
+  var feedback = getFeedback(n, result);
+
+  panel.innerHTML =
+    '<div class="res-status-bar">' +
+    '<span class="res-code '+statusClass+'">'+result.status+'</span>' +
+    '<span class="res-meta">'+(getStatusText(result.status))+'</span>' +
+    (result.responseTime ? '<span class="res-meta">'+result.responseTime+'ms</span>' : '') +
+    '</div>' +
+    '<div class="res-body">'+escHtml(bodyStr)+'</div>' +
+    (feedback ? '<div class="res-feedback '+(result.status >= 400 && n!==4 && n!==5 && n!==6 ? 'fail' : '')+'">'+feedback+'</div>' : '');
+  panel.classList.add('show');
+  updateProgress();
+}
+
+function getFeedback(n, result) {
+  var fb = {
+    1: result.status === 200 ? '<strong style="color:var(--green)">QAlemental!</strong> User retrieved successfully. Check: does the response contain all expected fields? Is the data correct?' : 'Try GET /api/users/1 with the Authorization header included.',
+    2: result.status === 404 ? '<strong style="color:var(--green)">QAlemental!</strong> 404 Not Found — correct! A non-existent user returns 404, not 500 or empty 200.' : result.status === 401 ? 'Add an Authorization header to proceed.' : 'Try /api/users/9999 to get a 404.',
+    3: result.status === 201 ? '<strong style="color:var(--green)">QAlemental!</strong> 201 Created. Notice status is "pending" — correct for new unverified users. Now cross-check with: SELECT * FROM users WHERE email = \'' + (function(){ try{ return JSON.parse(document.getElementById('b3').value||'{}').email||'...'; } catch(e){ return '...'; } })() + '\'' : result.status === 400 ? 'The body has validation errors. Include name, email, and plan fields.' : 'Use POST method to /api/users with a JSON body.',
+    4: result.status === 401 ? '<strong style="color:var(--green)">QAlemental!</strong> 401 Unauthorized — correct! The API correctly rejects requests with no authentication. This prevents data exposure to anonymous users.' : 'Leave the headers area EMPTY — remove the Authorization header to test 401.',
+    5: result.status === 400 ? '<strong style="color:var(--green)">QAlemental!</strong> 400 Bad Request — the API correctly validates required fields and tells you which one is missing.' : result.status === 201 ? 'Send the body WITHOUT the email field to trigger a 400 error.' : 'Use POST to /api/users with body missing the email field.',
+    6: result.status === 400 ? '<strong style="color:var(--green)">QAlemental!</strong> The API correctly detected and rejected the SQL injection attempt. A 500 here would mean the injection worked — always a critical bug.' : 'Send the SQL injection payload: {"name":"Hacker","email":"\'OR 1=1--","plan":"pro"}',
+    7: '',
+    8: ''
+  };
+  return fb[n] || '';
+}
+
+function getStatusText(code) {
+  var texts = {200:'OK',201:'Created',204:'No Content',400:'Bad Request',401:'Unauthorized',403:'Forbidden',404:'Not Found',409:'Conflict',422:'Unprocessable Entity',500:'Internal Server Error'};
+  return texts[code] || 'Unknown';
+}
+
+function escHtml(str) {
+  return str.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function toggleHint(id) {
+  var el = document.getElementById(id);
+  el.classList.toggle('show');
+}
+
+// ══ BUG HUNT ══
+var bugAnswers = {1:1, 2:1, 3:1, 4:1, 5:1};
+var bugsFound = 0;
+var bugExplanations = {
+  1:'Correct! POST creating a resource should return 201 Created (not 200 OK). Also, a newly created user should have status "pending" — not "active" — until email verification.',
+  2:'Correct! This is a critical security bug. The API should never return user data without verifying authentication. 401 Unauthorized should have been returned.',
+  3:'Correct! A 500 Internal Server Error means the missing field caused an unhandled exception in the server. The API should validate inputs and return 400 Bad Request with a clear message.',
+  4:'Correct! This is an IDOR (Insecure Direct Object Reference) vulnerability — a top-10 OWASP security issue. User A should only access their own orders. The API must verify ownership, not just authentication.',
+  5:'Correct! The DELETE endpoint returned 200 "success" but the resource still exists. This means the delete operation failed silently in the database. The response code lied. Always verify with GET after DELETE.'
+};
+
+function checkBug(bugN, optN) {
+  var item = document.getElementById('bug'+bugN);
+  if(item.classList.contains('found')) return;
+  var opts = item.querySelectorAll('.bug-opt');
+  opts.forEach(function(b){ b.classList.add('locked'); b.disabled=true; });
+  var correct = optN === bugAnswers[bugN];
+  opts[optN].classList.add(correct ? 'correct' : 'wrong');
+  if(correct) {
+    opts[bugAnswers[bugN]].classList.add('correct');
+    item.classList.add('found');
+    document.getElementById('bug'+bugN+'-status').textContent = 'FOUND ✅';
+    document.getElementById('bug'+bugN+'-status').style.color = 'var(--green)';
+    bugsFound++;
+  } else {
+    opts[bugAnswers[bugN]].classList.add('correct');
+  }
+  // Add explanation
+  var expl = document.createElement('div');
+  expl.style.cssText = 'margin-top:10px;padding:10px 14px;background:rgba(26,171,152,.07);border-left:3px solid var(--teal);border-radius:0 8px 8px 0;font-size:13px;color:var(--muted);animation:fadeUp .3s ease both';
+  expl.textContent = bugExplanations[bugN];
+  item.appendChild(expl);
+  document.getElementById('bug-score').textContent = 'Bugs found: '+bugsFound+'/5';
+  document.getElementById('bug-score').style.color = bugsFound===5 ? 'var(--green)' : 'var(--text)';
+  updateProgress();
+}
+
+// ══ INTERVIEW TOGGLE ══
+function toggleIQ(n) {
+  var a = document.getElementById('iq'+n+'-a');
+  var t = document.getElementById('iq'+n+'-toggle');
+  a.classList.toggle('show');
+  t.textContent = a.classList.contains('show') ? 'Hide ↑' : 'Show →';
+}
+
+// ══ QUIZZES ══
+var QUIZZES = [
+  {q:"What is the main advantage of API testing over UI testing alone?",
+   opts:["API tests run faster in the browser","API tests verify what actually happens in the system — data saved, logic executed, security enforced","API tests are easier to write","API tests don't require a test environment"],
+   ans:1,
+   expl:"UI tests verify what users SEE. API tests verify what actually HAPPENS — the data that gets saved, the security that holds, the business logic that runs. 80% of production bugs happen in the backend, invisible to UI tests."},
+  {q:"You need to UPDATE only the email field of a user record without changing other fields. Which HTTP method should you use?",
+   opts:["PUT — replace the entire user","POST — create a new user","PATCH — partial update of specified fields","DELETE then POST to recreate"],
+   ans:2,
+   expl:"PATCH updates only the fields you specify, leaving others unchanged. PUT replaces the entire resource — if you PUT with only {email}, all other fields (name, plan, etc.) would be cleared. For partial updates, always use PATCH."},
+  {q:"An API returns 403 when you access /api/admin/users. What does this mean for QA?",
+   opts:["The endpoint doesn't exist","The user is not authenticated — they need to log in","The user IS authenticated but doesn't have admin permission — correct behavior to verify","The server has crashed"],
+   ans:2,
+   expl:"403 Forbidden means authenticated but not authorized. The test PASSED — a regular user correctly cannot access admin endpoints. If it returned 200, that would be a critical security bug (privilege escalation). QA needs to verify 403 is returned for unauthorized actions."},
+  {q:"In Postman, what is the purpose of Environment Variables like {{base_url}}?",
+   opts:["To add comments to requests","To switch between staging and production without changing every request URL","To encrypt the request body","To speed up response time"],
+   ans:1,
+   expl:"Environment variables let you define values once and reuse them across all requests. Change {{base_url}} from staging to production in one place and every request updates automatically. This is the foundation of maintainable Postman collections."},
+  {q:"You test POST /api/login with a valid token. The response comes back in 3.2 seconds. What should you do?",
+   opts:["Accept it — the API is working correctly","Report it as a performance bug — login should respond in under 500ms","Retry the request until it's faster","Change to a GET request instead"],
+   ans:1,
+   expl:"Login is a critical endpoint. A 3.2 second response time is a performance bug — users expect sub-500ms authentication. Slow logins cause high abandonment rates and hint at N+1 query problems or unindexed database lookups. Report it with the exact response time as evidence."},
+  {q:"A pm.test() assertion fails. What is the correct QA action?",
+   opts:["Delete the failing assertion","Report it as a defect with the expected value, actual value, and endpoint details","Retry the request until it passes","Change the assertion to match the wrong behavior"],
+   ans:1,
+   expl:"A failing assertion means the API behavior doesn't match the contract. Report it as a defect with: endpoint, method, request body, expected response, actual response, and the assertion that failed. Never change assertions to match wrong behavior — that defeats the purpose of testing."},
+  {q:"What is the correct response when you send POST /api/users with missing required fields?",
+   opts:["201 Created with empty fields","500 Internal Server Error","400 Bad Request with a descriptive error message listing the missing fields","200 OK with a warning"],
+   ans:2,
+   expl:"400 Bad Request is the correct status for client errors like missing required fields. The response body should clearly state WHICH fields are missing. A 500 means the server crashed on invalid input — that's a bug. A 200 or 201 means validation is completely absent — also a bug."},
+  {q:"After calling POST /api/orders, what additional verification should a senior QA perform?",
+   opts:["Nothing — the 201 response confirms everything","Only verify the response status code","Query the database to verify the order was saved correctly, with the right user_id, amount, and status","Run the test again to confirm it's reproducible"],
+   ans:2,
+   expl:"Cross-validation with the database is the gold standard. The API can return 201 while the database has wrong data, missing fields, or incorrect relationships. Query: SELECT * FROM orders WHERE id = [returned_id] and verify every field matches what was sent and what the business rules require."}
+];
+
+var qStates = QUIZZES.map(function(){ return {answered:false}; });
+
+function renderQuiz(idx) {
+  var q = QUIZZES[idx];
+  var el = document.getElementById('q'+(idx+1));
+  if(!el) return;
+  var ltrs=['A','B','C','D'];
+  el.innerHTML = '<div class="quiz-q-text">'+q.q+'</div>'+
+    '<div class="quiz-opts">'+
+    q.opts.map(function(opt,i){
+      return '<button class="quiz-opt" onclick="selectOpt('+idx+','+i+',this)">'+
+        '<div class="opt-ltr">'+ltrs[i]+'</div><span>'+opt+'</span></button>';
+    }).join('')+
+    '</div><div class="quiz-fb" id="qfb'+idx+'"></div>';
+}
+
+function selectOpt(qIdx, optIdx, btn) {
+  if(qStates[qIdx].answered) return;
+  qStates[qIdx].answered = true;
+  var q = QUIZZES[qIdx];
+  var el = document.getElementById('q'+(qIdx+1));
+  el.querySelectorAll('.quiz-opt').forEach(function(b){ b.classList.add('locked'); b.disabled=true; });
+  var isOk = optIdx === q.ans;
+  if(isOk) btn.classList.add('correct');
+  else { btn.classList.add('wrong'); el.querySelectorAll('.quiz-opt')[q.ans].classList.add('correct'); }
+  var fb = document.getElementById('qfb'+qIdx);
+  fb.innerHTML = (isOk ? '<strong style="color:var(--green)">QAlemental, Watson.</strong> ' : '<strong style="color:var(--red)">Not quite, Watson.</strong> ') +
+    '<div class="quiz-expl">'+q.expl+'</div>';
+  fb.classList.add('show');
+  updateProgress();
+}
+
+function updateProgress() {
+  var quizDone = qStates.filter(function(s){ return s.answered; }).length;
+  var total = QUIZZES.length + 6 + 5;
+  document.getElementById('progressBar').style.width = ((quizDone + bugsFound) / total * 100) + '%';
+}
+
+window.addEventListener('scroll', function(){
+  var pct = Math.min((window.scrollY/(document.body.scrollHeight-window.innerHeight))*100,100);
+  document.getElementById('progressBar').style.width = Math.max(pct, parseFloat(document.getElementById('progressBar').style.width)||0)+'%';
+});
+
+QUIZZES.forEach(function(_,i){ renderQuiz(i); });
+</script>
+</body>
+</html>

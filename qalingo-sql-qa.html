@@ -173,7 +173,7 @@ body{background:var(--dark);color:var(--text);font-family:'DM Sans',sans-serif;f
 
 <div class="page-header">
   <div class="ph-badge">🗄️ SQL FOR QA</div>
-  <h1 class="ph-title">SQL para QA<br><span>Detectives</span></h1>
+  <h1 class="ph-title">SQL for QA<br><span>Detectives</span></h1>
   <p class="ph-sub">You don't need to be a DBA. But every great QA tester knows how to query a database — because that's where the bugs confess.</p>
   <div class="ph-stats">
     <div class="ph-stat"><strong>7</strong> concepts</div>
@@ -186,10 +186,10 @@ body{background:var(--dark);color:var(--text);font-family:'DM Sans',sans-serif;f
 <div class="toc">
   <div class="toc-grid">
     <a href="#s1" class="toc-item"><div class="toc-num" style="background:rgba(255,140,66,.15);color:var(--orange)">1</div><div class="toc-name">SELECT & WHERE</div></a>
-    <a href="#s2" class="toc-item"><div class="toc-num" style="background:rgba(26,171,152,.15);color:var(--teal)">2</div><div class="toc-name">Validación Post-API</div></a>
-    <a href="#s3" class="toc-item"><div class="toc-num" style="background:rgba(224,85,85,.15);color:var(--red)">3</div><div class="toc-name">Bug: Duplicados</div></a>
+    <a href="#s2" class="toc-item"><div class="toc-num" style="background:rgba(26,171,152,.15);color:var(--teal)">2</div><div class="toc-name">Post-API Validation</div></a>
+    <a href="#s3" class="toc-item"><div class="toc-num" style="background:rgba(224,85,85,.15);color:var(--red)">3</div><div class="toc-name">Bug: Duplicates</div></a>
     <a href="#s4" class="toc-item"><div class="toc-num" style="background:rgba(240,192,64,.15);color:var(--amber)">4</div><div class="toc-name">NULL Validation</div></a>
-    <a href="#s5" class="toc-item"><div class="toc-num" style="background:rgba(155,111,247,.15);color:var(--purple)">5</div><div class="toc-name">JOINs para QA</div></a>
+    <a href="#s5" class="toc-item"><div class="toc-num" style="background:rgba(155,111,247,.15);color:var(--purple)">5</div><div class="toc-name">JOINs for QA</div></a>
     <a href="#s6" class="toc-item"><div class="toc-num" style="background:rgba(116,180,248,.15);color:var(--blue)">6</div><div class="toc-name">Timestamps & Dates</div></a>
     <a href="#s7" class="toc-item"><div class="toc-num" style="background:rgba(126,201,74,.15);color:var(--green)">7</div><div class="toc-name">Bug Hunt Final</div></a>
   </div>
@@ -226,7 +226,7 @@ body{background:var(--dark);color:var(--text);font-family:'DM Sans',sans-serif;f
       <div class="section-num" style="background:rgba(255,140,66,.15);color:var(--orange)">1</div>
       <div>
         <div class="section-label">Concept 01</div>
-        <div class="section-title">SELECT & WHERE — Validación Básica</div>
+        <div class="section-title">SELECT & WHERE — Basic Validation</div>
         <div class="section-sub">Your first QA superpower: querying data to verify what the system actually stored.</div>
       </div>
     </div>
@@ -259,11 +259,11 @@ body{background:var(--dark);color:var(--text);font-family:'DM Sans',sans-serif;f
     <div class="data-table-wrap">
       <table class="data-table">
         <tr><th>id</th><th>name</th><th>email</th><th>status</th><th>plan</th><th>country</th><th>created_at</th></tr>
-        <tr><td>1</td><td>Ana García</td><td>ana@test.com</td><td class="td-ok">active</td><td>pro</td><td>Colombia</td><td>2024-01-15</td></tr>
-        <tr><td>2</td><td>John Smith</td><td>john@test.com</td><td class="td-ok">active</td><td>free</td><td>USA</td><td>2024-01-16</td></tr>
-        <tr><td>3</td><td>María López</td><td>maria@test.com</td><td class="td-warn">pending</td><td>free</td><td>Mexico</td><td>2024-01-17</td></tr>
-        <tr><td>4</td><td>Carlos Ruiz</td><td>carlos@test.com</td><td class="td-bad">suspended</td><td>pro</td><td>Colombia</td><td>2024-01-10</td></tr>
-        <tr><td>5</td><td>Laura Chen</td><td>laura@test.com</td><td class="td-ok">active</td><td>pro</td><td>Colombia</td><td>2024-01-18</td></tr>
+        <tr><td>1</td><td>Ana García</td><td><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="cbaaa5aa8bbfaeb8bfe5a8a4a6">[email&#160;protected]</a></td><td class="td-ok">active</td><td>pro</td><td>Colombia</td><td>2024-01-15</td></tr>
+        <tr><td>2</td><td>John Smith</td><td><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="1b717473755b6f7e686f35787476">[email&#160;protected]</a></td><td class="td-ok">active</td><td>free</td><td>USA</td><td>2024-01-16</td></tr>
+        <tr><td>3</td><td>María López</td><td><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="f79a96859e96b783928483d994989a">[email&#160;protected]</a></td><td class="td-warn">pending</td><td>free</td><td>Mexico</td><td>2024-01-17</td></tr>
+        <tr><td>4</td><td>Carlos Ruiz</td><td><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="8feceefde3e0fccffbeafcfba1ece0e2">[email&#160;protected]</a></td><td class="td-bad">suspended</td><td>pro</td><td>Colombia</td><td>2024-01-10</td></tr>
+        <tr><td>5</td><td>Laura Chen</td><td><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="dcb0bda9aebd9ca8b9afa8f2bfb3b1">[email&#160;protected]</a></td><td class="td-ok">active</td><td>pro</td><td>Colombia</td><td>2024-01-18</td></tr>
       </table>
     </div>
 
@@ -310,7 +310,7 @@ body{background:var(--dark);color:var(--text);font-family:'DM Sans',sans-serif;f
       <div class="section-num" style="background:rgba(26,171,152,.15);color:var(--teal)">2</div>
       <div>
         <div class="section-label">Concept 02</div>
-        <div class="section-title">Validación Post-API</div>
+        <div class="section-title">Post-API Validation</div>
         <div class="section-sub">API returns 200 OK — but did the right data actually persist?</div>
       </div>
     </div>
@@ -327,7 +327,7 @@ body{background:var(--dark);color:var(--text);font-family:'DM Sans',sans-serif;f
 
 <span class="kw">SELECT</span> id, name, email, status, plan, created_at
 <span class="kw">FROM</span> <span class="tbl">users</span>
-<span class="kw">WHERE</span> email <span class="op">=</span> <span class="str">'newuser@test.com'</span>;
+<span class="kw">WHERE</span> email <span class="op">=</span> <span class="str">'<a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="7d13180a080e180f3d09180e09531e1210">[email&#160;protected]</a>'</span>;
 
 <span class="cmt">-- Verify correct default values were set</span>
 <span class="kw">SELECT</span>
@@ -336,7 +336,7 @@ body{background:var(--dark);color:var(--text);font-family:'DM Sans',sans-serif;f
   plan,          <span class="cmt">-- Should be 'free' (default)</span>
   created_at     <span class="cmt">-- Should be today's date</span>
 <span class="kw">FROM</span> <span class="tbl">users</span>
-<span class="kw">WHERE</span> email <span class="op">=</span> <span class="str">'newuser@test.com'</span>;</div>
+<span class="kw">WHERE</span> email <span class="op">=</span> <span class="str">'<a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="d2bcb7a5a7a1b7a092a6b7a1a6fcb1bdbf">[email&#160;protected]</a>'</span>;</div>
     </div>
 
     <div class="editor-card">
@@ -346,7 +346,7 @@ body{background:var(--dark);color:var(--text);font-family:'DM Sans',sans-serif;f
       </div>
       <div class="editor-body">
         <div class="editor-scenario">
-          <strong>Scenario:</strong> Your team's API <code>POST /api/users/register</code> returned 200 OK for email <strong>maria@test.com</strong>. Write a query to verify: 1) the user exists, 2) their status, 3) their plan, and 4) when they were created.
+          <strong>Scenario:</strong> Your team's API <code>POST /api/users/register</code> returned 200 OK for email <strong><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="c2afa3b0aba382b6a7b1b6eca1adaf">[email&#160;protected]</a></strong>. Write a query to verify: 1) the user exists, 2) their status, 3) their plan, and 4) when they were created.
         </div>
         <div class="editor-hint">💡 Hint: SELECT the fields you need to verify. Filter by email using WHERE.</div>
         <textarea class="sql-textarea" id="ed2" placeholder="-- Verify the API created the user correctly&#10;SELECT ..."></textarea>
@@ -356,7 +356,7 @@ body{background:var(--dark);color:var(--text);font-family:'DM Sans',sans-serif;f
           <button class="reset-btn" onclick="resetEditor(2)">↺ Reset</button>
         </div>
         <div class="hint-panel" id="hint2">
-          Try: <code>SELECT email, status, plan, created_at FROM users WHERE email = 'maria@test.com'</code>
+          Try: <code>SELECT email, status, plan, created_at FROM users WHERE email = '<a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="503d3122393110243523247e333f3d">[email&#160;protected]</a>'</code>
         </div>
         <div class="result-panel" id="result2"></div>
       </div>
@@ -382,7 +382,7 @@ body{background:var(--dark);color:var(--text);font-family:'DM Sans',sans-serif;f
       <div class="section-num" style="background:rgba(224,85,85,.15);color:var(--red)">3</div>
       <div>
         <div class="section-label">Concept 03 — Real Bug</div>
-        <div class="section-title">Bug: Duplicados con GROUP BY + HAVING</div>
+        <div class="section-title">Bug: Duplicates with GROUP BY + HAVING</div>
         <div class="section-sub">Finding the bug that the UI never shows — duplicate records hiding in the database.</div>
       </div>
     </div>
@@ -406,7 +406,7 @@ body{background:var(--dark);color:var(--text);font-family:'DM Sans',sans-serif;f
 <span class="cmt">-- See ALL records for a specific duplicate</span>
 <span class="kw">SELECT</span> id, name, email, status, created_at
 <span class="kw">FROM</span> <span class="tbl">users</span>
-<span class="kw">WHERE</span> email <span class="op">=</span> <span class="str">'duplicate@test.com'</span>
+<span class="kw">WHERE</span> email <span class="op">=</span> <span class="str">'<a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="214554514d484240554461554452550f424e4c">[email&#160;protected]</a>'</span>
 <span class="kw">ORDER BY</span> created_at;
 
 <span class="cmt">-- Count total duplicated records</span>
@@ -423,12 +423,12 @@ body{background:var(--dark);color:var(--text);font-family:'DM Sans',sans-serif;f
     <div class="data-table-wrap">
       <table class="data-table">
         <tr><th>id</th><th>name</th><th>email</th><th>status</th><th>created_at</th></tr>
-        <tr><td>1</td><td>Ana García</td><td class="td-ok">ana@test.com</td><td>active</td><td>2024-01-15</td></tr>
-        <tr><td>2</td><td>John Smith</td><td class="td-bad">john@test.com</td><td>active</td><td>2024-01-16</td></tr>
-        <tr><td>3</td><td>John Smith</td><td class="td-bad">john@test.com</td><td>pending</td><td>2024-01-16</td></tr>
-        <tr><td>4</td><td>María López</td><td class="td-bad">maria@test.com</td><td>pending</td><td>2024-01-17</td></tr>
-        <tr><td>5</td><td>María L.</td><td class="td-bad">maria@test.com</td><td>active</td><td>2024-01-18</td></tr>
-        <tr><td>6</td><td>Laura Chen</td><td class="td-ok">laura@test.com</td><td>active</td><td>2024-01-18</td></tr>
+        <tr><td>1</td><td>Ana García</td><td class="td-ok"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="61000f0021150412154f020e0c">[email&#160;protected]</a></td><td>active</td><td>2024-01-15</td></tr>
+        <tr><td>2</td><td>John Smith</td><td class="td-bad"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="ddb7b2b5b39da9b8aea9f3beb2b0">[email&#160;protected]</a></td><td>active</td><td>2024-01-16</td></tr>
+        <tr><td>3</td><td>John Smith</td><td class="td-bad"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="472d282f2907332234336924282a">[email&#160;protected]</a></td><td>pending</td><td>2024-01-16</td></tr>
+        <tr><td>4</td><td>María López</td><td class="td-bad"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="0a676b78636b4a7e6f797e24696567">[email&#160;protected]</a></td><td>pending</td><td>2024-01-17</td></tr>
+        <tr><td>5</td><td>María L.</td><td class="td-bad"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="ddb0bcafb4bc9da9b8aea9f3beb2b0">[email&#160;protected]</a></td><td>active</td><td>2024-01-18</td></tr>
+        <tr><td>6</td><td>Laura Chen</td><td class="td-ok"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="96faf7e3e4f7d6e2f3e5e2b8f5f9fb">[email&#160;protected]</a></td><td>active</td><td>2024-01-18</td></tr>
       </table>
     </div>
 
@@ -551,7 +551,7 @@ body{background:var(--dark);color:var(--text);font-family:'DM Sans',sans-serif;f
       <div class="section-num" style="background:rgba(155,111,247,.15);color:var(--purple)">5</div>
       <div>
         <div class="section-label">Concept 05</div>
-        <div class="section-title">JOINs para Cross-Table Validation</div>
+        <div class="section-title">JOINs for Cross-Table Validation</div>
         <div class="section-sub">Data integrity across tables — the advanced QA weapon.</div>
       </div>
     </div>
@@ -765,7 +765,7 @@ body{background:var(--dark);color:var(--text);font-family:'DM Sans',sans-serif;f
   <!-- COMPLETE -->
   <div class="complete-banner">
     <span class="cb-trophy">🏆</span>
-    <div class="cb-title">SQL para QA — Complete!</div>
+    <div class="cb-title">SQL for QA — Complete!</div>
     <div class="cb-sub">You can now query databases, find bugs, validate APIs, detect duplicates, hunt orphans, and investigate production incidents.</div>
     <div class="cb-watson">"QAlemental, Dear Watson. The database has no secrets from you now."</div>
     <div class="cb-btns">
@@ -785,7 +785,7 @@ body{background:var(--dark);color:var(--text);font-family:'DM Sans',sans-serif;f
   <a href="qalingo-glossary.html">📖 Glossary</a>
 </div>
 
-<script>
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
 // Theme
 (function(){
   var L={'--dark':'#eef4fb','--d2':'#e0ecf7','--d3':'#cfe0f0','--card':'#f8fbff','--border':'#b8d4e8','--bhi':'#90b8d5','--text':'#0f1f35','--muted':'#3d607a','--white':'#0a1828'};
@@ -1028,53 +1028,4 @@ function resetEditor(n) {
   var panel = document.getElementById('result'+n);
   panel.classList.remove('show');
   var hint = document.getElementById('hint'+n);
-  hint.classList.remove('show');
-}
-
-function renderQuiz(idx) {
-  var q = QUIZZES[idx];
-  var el = document.getElementById('q'+(idx+1));
-  if(!el) return;
-  var ltrs=['A','B','C','D'];
-  el.innerHTML = '<div class="quiz-q-text">'+q.q+'</div>'+
-    '<div class="quiz-opts">'+
-    q.opts.map(function(opt,i){
-      return '<button class="quiz-opt" onclick="selectOpt('+idx+','+i+',this)">'+
-        '<div class="opt-ltr">'+ltrs[i]+'</div><span>'+opt+'</span></button>';
-    }).join('')+
-    '</div><div class="quiz-fb" id="qfb'+idx+'"></div>';
-}
-
-function selectOpt(qIdx, optIdx, btn) {
-  if(qStates[qIdx].answered) return;
-  qStates[qIdx].answered = true;
-  var q = QUIZZES[qIdx];
-  var el = document.getElementById('q'+(qIdx+1));
-  el.querySelectorAll('.quiz-opt').forEach(function(b){ b.classList.add('locked'); b.disabled=true; });
-  var isOk = optIdx === q.ans;
-  if(isOk) btn.classList.add('correct');
-  else { btn.classList.add('wrong'); el.querySelectorAll('.quiz-opt')[q.ans].classList.add('correct'); }
-  var fb = document.getElementById('qfb'+qIdx);
-  fb.innerHTML = (isOk ? '<strong style="color:var(--green)">QAlemental, Watson.</strong> ' : '<strong style="color:var(--red)">Not quite, Watson.</strong> ') +
-    '<div class="quiz-expl">'+q.expl+'</div>';
-  fb.classList.add('show');
-  updateProgress();
-}
-
-function updateProgress() {
-  var quizDone = qStates.filter(function(s){ return s.answered; }).length;
-  var total = QUIZZES.length + 7;
-  var done = quizDone + Math.min(completedExercises, 7);
-  document.getElementById('progressBar').style.width = (done/total*100)+'%';
-}
-
-window.addEventListener('scroll', function(){
-  var pct = Math.min((window.scrollY/(document.body.scrollHeight-window.innerHeight))*100,100);
-  var quizPct = (qStates.filter(function(s){return s.answered;}).length/QUIZZES.length)*100;
-  document.getElementById('progressBar').style.width = Math.max(pct,quizPct)+'%';
-});
-
-QUIZZES.forEach(function(_,i){ renderQuiz(i); });
-</script>
-</body>
-</html>
+  hint.
